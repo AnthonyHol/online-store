@@ -1,0 +1,72 @@
+from fastapi import Depends
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from core.exceptions import good_not_found_exception
+from db.models import Good, Specification
+from db.repositories.good import GoodRepository
+from db.session import get_session
+from schemas.good import ExtendedGoodCreateSchema, GoodCreateSchema
+from services.specification import SpecificationService
+
+
+class GoodService:
+    def __init__(
+        self,
+        session: AsyncSession = Depends(get_session),
+        good_repository: GoodRepository = Depends(),
+        specification_service: SpecificationService = Depends(),
+    ):
+        self._session = session
+        self._good_repository = good_repository
+        self._specification_service = specification_service
+
+    async def get_by_guid(self, guid: str) -> Good:
+        good = await self._good_repository.get_by_guid(guid=guid)
+
+        if not good:
+            raise good_not_found_exception
+
+        return good
+
+    async def create(self, data: GoodCreateSchema) -> Good:
+        good = await self._good_repository.create(data=data)
+
+        return good
+
+    async def update(self, guid: str, data: GoodCreateSchema) -> Good:
+        good = await self.get_by_guid(guid=guid)
+        await self._good_repository.update(instance=good, data=data)
+
+        return good
+
+    async def create_or_update(self, data: ExtendedGoodCreateSchema) -> Good:
+        good = await self._good_repository.get_by_guid(guid=data.guid)
+
+        logger.info(f"{data=}")
+
+        good_data = GoodCreateSchema(
+            guid=data.guid,
+            name=data.name,
+            description=data.description,
+            good_group_guid=data.good_group_guid,
+            type=data.type,
+        )
+
+        if not good:
+            good = await self.create(data=good_data)
+        else:
+            good = await self.update(guid=good_data.guid, data=good_data)
+
+        specifications: list[Specification] = []
+
+        for specification in data.specifications:
+            specifications.append(
+                await self._specification_service.create_or_update(
+                    data=specification, good_guid=good_data.guid
+                )
+            )
+
+        await self._session.commit()
+
+        return good

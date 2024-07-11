@@ -1,0 +1,37 @@
+@startuml
+entity good_groups {
+guid: char(255)
+__
+name: char(255)
+parent_group_guid: char(255) <<FK>>
+}
+
+entity goods {
+guid: char(255)
+__
+name: char(255)
+type: GoodTypesEnum["regular", "hit", "new"]
+description: text
+good_group_guid: char(255) <<FK>>
+}
+
+entity specifications {
+guid: char(255)
+__
+good_guid: char(255) <<FK>>
+name: char(255)
+}
+
+entity properties {
+guid: char(255)
+__
+specification_guid: char(255) <<FK>>
+value: text
+}
+
+good_groups }|--|| good_groups
+goods }|--|| good_groups
+specifications }|--|| goods
+properties }|--|| specifications
+
+@enduml
