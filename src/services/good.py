@@ -17,7 +17,7 @@ class GoodService:
         session: AsyncSession = Depends(get_session),
         good_repository: GoodRepository = Depends(),
         specification_service: SpecificationService = Depends(),
-        good_group_service: GoodGroupService = Depends()
+        good_group_service: GoodGroupService = Depends(),
     ):
         self._session = session
         self._good_repository = good_repository

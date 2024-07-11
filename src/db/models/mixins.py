@@ -5,13 +5,14 @@ from sqlalchemy import DateTime, func, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-
 class GUIDMixin:
     """Mixin of implement id."""
 
     __abstract__ = True
 
-    guid: Mapped[str] = mapped_column(String(255), primary_key=True, default=lambda: str(uuid.uuid4()))
+    guid: Mapped[str] = mapped_column(
+        String(255), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
 
 
 class CreatedAtMixin:
