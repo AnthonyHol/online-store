@@ -15,7 +15,6 @@ class PropertyRepository(BaseDatabaseRepository):
         spec_property = Property()
         spec_property.guid = data.guid
         spec_property.name = data.name
-        spec_property.value = data.value
         spec_property.specification_guid = specification_guid
 
         self._session.add(spec_property)
@@ -36,7 +35,6 @@ class PropertyRepository(BaseDatabaseRepository):
     ) -> None:
         instance.guid = data.guid
         instance.name = data.name
-        instance.value = data.value
         instance.specification_guid = specification_guid
 
         await self._session.flush()
