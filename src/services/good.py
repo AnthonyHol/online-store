@@ -7,6 +7,7 @@ from db.models import Good, Specification
 from db.repositories.good import GoodRepository
 from db.session import get_session
 from schemas.good import ExtendedGoodCreateSchema, GoodCreateSchema
+from services.good_group import GoodGroupService
 from services.specification import SpecificationService
 
 
@@ -16,10 +17,12 @@ class GoodService:
         session: AsyncSession = Depends(get_session),
         good_repository: GoodRepository = Depends(),
         specification_service: SpecificationService = Depends(),
+        good_group_service: GoodGroupService = Depends()
     ):
         self._session = session
         self._good_repository = good_repository
         self._specification_service = specification_service
+        self._good_group_service = good_group_service
 
     async def get_by_guid(self, guid: str) -> Good:
         good = await self._good_repository.get_by_guid(guid=guid)
@@ -41,9 +44,10 @@ class GoodService:
         return good
 
     async def create_or_update(self, data: ExtendedGoodCreateSchema) -> Good:
-        good = await self._good_repository.get_by_guid(guid=data.guid)
+        if data.good_group_guid:
+            await self._good_group_service.get_by_guid(guid=data.good_group_guid)
 
-        logger.info(f"{data=}")
+        good = await self._good_repository.get_by_guid(guid=data.guid)
 
         good_data = GoodCreateSchema(
             guid=data.guid,
