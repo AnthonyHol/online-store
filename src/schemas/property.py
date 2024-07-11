@@ -3,6 +3,5 @@ from schemas.base import BaseOrmSchema
 
 
 class PropertySchema(BaseOrmSchema):
-    guid: str
+    guid: str | None = None
     name: PropertyNamesEnum
-    value: str
