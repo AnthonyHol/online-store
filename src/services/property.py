@@ -52,15 +52,15 @@ class PropertyService:
     async def create_or_update(
         self, data: PropertySchema, specification_guid: str
     ) -> Property:
-        spec_property = await self._spec_property_repository.get_by_guid(guid=data.guid)
+        if data.guid:
+            await self.get_by_guid(guid=data.guid)
 
-        if not spec_property:
-            spec_property = await self.create(
-                data=data, specification_guid=specification_guid
-            )
-        else:
             spec_property = await self.update(
                 guid=data.guid, data=data, specification_guid=specification_guid
+            )
+        else:
+            spec_property = await self.create(
+                data=data, specification_guid=specification_guid
             )
 
         await self._session.commit()

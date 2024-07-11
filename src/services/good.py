@@ -1,5 +1,4 @@
 from fastapi import Depends
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions import good_not_found_exception

@@ -1,8 +1,22 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, func, String
+from sqlalchemy import DateTime, func, String, TypeDecorator
 from sqlalchemy.orm import Mapped, mapped_column
+
+
+class GUID(TypeDecorator):  # type: ignore
+    impl = String
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        return str(value)
 
 
 class GUIDMixin:
@@ -11,7 +25,7 @@ class GUIDMixin:
     __abstract__ = True
 
     guid: Mapped[str] = mapped_column(
-        String(255), primary_key=True, default=lambda: str(uuid.uuid4())
+        GUID(), primary_key=True, default=lambda: str(uuid.uuid4())
     )
 
 

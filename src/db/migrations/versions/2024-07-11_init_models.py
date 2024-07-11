@@ -1,17 +1,18 @@
 """Init models
 
-Revision ID: 572c5d9f0d0b
+Revision ID: 943cbf2d6d5c
 Revises:
-Create Date: 2024-07-11 19:53:23.077148
+Create Date: 2024-07-11 20:14:55.688306
 
 """
 
 from alembic import op
 import sqlalchemy as sa
 
+import db
 
 # revision identifiers, used by Alembic.
-revision: str | None = "572c5d9f0d0b"
+revision: str | None = "943cbf2d6d5c"
 down_revision: str | None = None
 branch_labels: str | None = None
 depends_on: str | None = None
@@ -23,7 +24,7 @@ def upgrade() -> None:
         "good_groups",
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("parent_group_guid", sa.String(length=255), nullable=True),
-        sa.Column("guid", sa.String(length=255), nullable=False),
+        sa.Column("guid", db.models.mixins.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["parent_group_guid"],
             ["good_groups.guid"],
@@ -41,7 +42,7 @@ def upgrade() -> None:
         ),
         sa.Column("description", sa.Text(), nullable=False),
         sa.Column("good_group_guid", sa.String(length=255), nullable=False),
-        sa.Column("guid", sa.String(length=255), nullable=False),
+        sa.Column("guid", db.models.mixins.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["good_group_guid"],
             ["good_groups.guid"],
@@ -53,7 +54,7 @@ def upgrade() -> None:
         "specifications",
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("good_guid", sa.String(length=255), nullable=False),
-        sa.Column("guid", sa.String(length=255), nullable=False),
+        sa.Column("guid", db.models.mixins.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["good_guid"], ["goods.guid"], name=op.f("specifications_good_guid_fkey")
         ),
@@ -77,7 +78,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("specification_guid", sa.String(length=255), nullable=False),
-        sa.Column("guid", sa.String(length=255), nullable=False),
+        sa.Column("guid", db.models.mixins.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["specification_guid"],
             ["specifications.guid"],

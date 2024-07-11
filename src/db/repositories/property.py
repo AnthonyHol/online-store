@@ -13,7 +13,10 @@ class PropertyRepository(BaseDatabaseRepository):
 
     async def create(self, data: PropertySchema, specification_guid: str) -> Property:
         spec_property = Property()
-        spec_property.guid = data.guid
+
+        if data.guid:
+            spec_property.guid = data.guid
+
         spec_property.name = data.name
         spec_property.specification_guid = specification_guid
 
@@ -33,7 +36,9 @@ class PropertyRepository(BaseDatabaseRepository):
     async def update(
         self, instance: Property, data: PropertySchema, specification_guid: str
     ) -> None:
-        instance.guid = data.guid
+        if data.guid:
+            instance.guid = data.guid
+
         instance.name = data.name
         instance.specification_guid = specification_guid
 
