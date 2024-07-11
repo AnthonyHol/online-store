@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "price-store"
+name = "two-captains-online-store"
 version = "0.1.0"
 description = ""
 authors = ["anthonyhol <1tonyhol1@gmail.com>"]
