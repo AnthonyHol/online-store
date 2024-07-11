@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 
-
 class GUIDMixin:
     """Mixin of implement id."""
 
