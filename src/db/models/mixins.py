@@ -10,7 +10,7 @@ class GUIDMixin:
 
     __abstract__ = True
 
-    guid: Mapped[str] = mapped_column(String(255), primary_key=True, default=uuid.uuid4)
+    guid: Mapped[str] = mapped_column(String(255), primary_key=True, default=str(uuid.uuid4))
 
 
 class CreatedAtMixin:
