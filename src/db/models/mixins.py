@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 class GUID(TypeDecorator):  # type: ignore
     impl = String
+    cache_ok = True
 
     def process_bind_param(self, value, dialect):
         if value is None:
