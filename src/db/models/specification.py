@@ -1,5 +1,5 @@
 from db.models.base import BaseModel
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, PrimaryKeyConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.mixins import GUIDMixin
@@ -24,4 +24,8 @@ class Specification(BaseModel, GUIDMixin):
         back_populates="specification",
         foreign_keys="Property.specification_guid",
         lazy="selectin",
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint('guid', 'good_guid'),
     )
