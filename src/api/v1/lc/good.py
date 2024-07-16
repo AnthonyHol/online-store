@@ -21,11 +21,10 @@ async def get_good_by_id(
 
 
 @router.post(
-    "",
-    status_code=status.HTTP_201_CREATED,
+    "", status_code=status.HTTP_201_CREATED, response_model=GoodWithSpecsGetSchema
 )
 async def create_good(
     data: GoodWithSpecsCreateSchema,
     good_service: GoodService = Depends(),
-) -> GoodWithSpecsGetSchema:
+) -> Good:
     return await good_service.create_or_update(data=data)

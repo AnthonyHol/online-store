@@ -8,7 +8,6 @@ from db.session import get_session
 from schemas.good import (
     GoodWithSpecsCreateSchema,
     GoodCreateSchema,
-    GoodWithSpecsGetSchema,
 )
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
@@ -35,52 +34,44 @@ class GoodService:
 
         return good
 
-    async def create(self, data: GoodCreateSchema) -> Good:
-        return await self._good_repository.create(data=data)
-
-    async def update(self, guid: str, data: GoodCreateSchema) -> Good:
-        good = await self.get_by_guid(guid=guid)
-        await self._good_repository.update(instance=good, data=data)
-
-        return good
-
-    async def create_or_update(
+    async def delete_specification_association(
         self, data: GoodWithSpecsCreateSchema
-    ) -> GoodWithSpecsGetSchema:
-        if data.good_group_guid:
-            await self._good_group_service.get_by_guid(guid=data.good_group_guid)
-
-        good = await self._good_repository.get_by_guid(guid=data.guid)
-
-        good_data = GoodCreateSchema(
-            guid=data.guid,
-            name=data.name,
-            description=data.description,
-            good_group_guid=data.good_group_guid,
-            type=data.type,
+    ) -> None:
+        current_specifications = await self._specification_service.get_by_good_guid(
+            good_guid=data.guid
         )
+        good_spec_guids = [spec.guid for spec in data.specifications]
+        specs_to_remove = [
+            spec for spec in current_specifications if spec.guid not in good_spec_guids
+        ]
 
-        if not good:
-            good = await self.create(data=good_data)
+        for spec in specs_to_remove:
+            await self._good_repository.delete_association_with_specification(
+                good_guid=data.guid, specification_guid=spec.guid
+            )
 
-        else:
-            good = await self.update(guid=good_data.guid, data=good_data)
-
-        specifications_with_properties = (
-            await self._specification_service.create_or_update_batch(
-                data=data.specifications
+    async def create_or_update(self, data: GoodWithSpecsCreateSchema) -> Good:
+        good = await self._good_repository.merge(
+            data=GoodCreateSchema(
+                guid=data.guid,
+                name=data.name,
+                description=data.description,
+                good_group_guid=data.good_group_guid,
+                type=data.type,
             )
         )
 
-        await self._session.commit()
+        await self.delete_specification_association(data=data)
 
-        good_with_specifications = GoodWithSpecsGetSchema(
-            guid=good.guid,
-            name=good.name,
-            description=good.description,
-            good_group_guid=good.good_group_guid,
-            type=good.type,
-            specifications=specifications_with_properties,
+        specifications = await self._specification_service.create_or_update_batch(
+            data=data.specifications
         )
 
-        return good_with_specifications
+        for specification in specifications:
+            await self._good_repository.create_association_with_specification(
+                good_guid=good.guid, specification_guid=specification.guid
+            )
+
+        await self._session.commit()
+
+        return good

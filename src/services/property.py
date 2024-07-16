@@ -5,7 +5,7 @@ from core.exceptions import property_not_found_exception
 from db.models import Property
 from db.repositories.property import PropertyRepository
 from db.session import get_session
-from schemas.property import BasePropertySchema, PropertyCreateSchema
+from schemas.property import BasePropertySchema
 
 
 class PropertyService:
@@ -25,51 +25,9 @@ class PropertyService:
 
         return spec_property
 
-    async def create(self, data: PropertyCreateSchema) -> Property:
-        spec_property = await self._property_repository.create(data=data)
-
-        return spec_property
-
-    async def update(self, instance: Property, value: str) -> None:
-        instance.value = value
-
-        await self._session.flush()
-
-    async def create_batch(
-        self, data: list[BasePropertySchema], specification_guid: str
-    ):
-        spec_properties = await self._property_repository.create_batch(
-            data=data, specification_guid=specification_guid
-        )
-
-        return spec_properties
-
-    async def update_batch(
+    async def create_or_update_batch(
         self, data: list[BasePropertySchema], specification_guid: str
     ) -> list[Property]:
-        properties: list[Property] = []
-
-        for spec_property in data:
-            property_in_db = (
-                await self._property_repository.get_by_name_and_specification_guid(
-                    name=spec_property.name, specification_guid=specification_guid
-                )
-            )
-
-            if not property_in_db:
-                properties.append(
-                    await self.create(
-                        data=PropertyCreateSchema(
-                            name=spec_property.name,
-                            value=spec_property.value,
-                            specification_guid=specification_guid,
-                        )
-                    )
-                )
-            else:
-                await self.update(instance=property_in_db, value=spec_property.value)
-                properties.append(property_in_db)
-
-            await self._session.commit()
-
-        return properties
+        return await self._property_repository.create_or_update_batch(
+            data=data, specification_guid=specification_guid
+        )
