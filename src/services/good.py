@@ -62,26 +62,24 @@ class GoodService:
 
         if not good:
             good = await self.create(data=good_data)
-            specifications_with_properties = (
-                await self._specification_service.create_batch(data=data.specifications)
-            )
 
         else:
             good = await self.update(guid=good_data.guid, data=good_data)
-            specifications_with_properties = (
-                await self._specification_service.create_or_update_batch(
-                    data=data.specifications
-                )
+
+        specifications_with_properties = (
+            await self._specification_service.create_or_update_batch(
+                data=data.specifications
             )
+        )
 
         await self._session.commit()
 
         good_with_specifications = GoodWithSpecsGetSchema(
-            guid=data.guid,
-            name=data.name,
-            description=data.description,
-            good_group_guid=data.good_group_guid,
-            type=data.type,
+            guid=good.guid,
+            name=good.name,
+            description=good.description,
+            good_group_guid=good.good_group_guid,
+            type=good.type,
             specifications=specifications_with_properties,
         )
 

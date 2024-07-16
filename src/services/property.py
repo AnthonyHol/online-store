@@ -49,10 +49,10 @@ class PropertyService:
     ) -> list[Property]:
         properties: list[Property] = []
 
-        for property in data:
+        for spec_property in data:
             property_in_db = (
                 await self._property_repository.get_by_name_and_specification_guid(
-                    name=property.name, specification_guid=specification_guid
+                    name=spec_property.name, specification_guid=specification_guid
                 )
             )
 
@@ -60,14 +60,14 @@ class PropertyService:
                 properties.append(
                     await self.create(
                         data=PropertyCreateSchema(
-                            name=property.name,
-                            value=property.value,
+                            name=spec_property.name,
+                            value=spec_property.value,
                             specification_guid=specification_guid,
                         )
                     )
                 )
             else:
-                await self.update(instance=property_in_db, value=property.value)
+                await self.update(instance=property_in_db, value=spec_property.value)
                 properties.append(property_in_db)
 
             await self._session.commit()

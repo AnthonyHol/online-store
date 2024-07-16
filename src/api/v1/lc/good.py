@@ -3,6 +3,7 @@ from fastapi import APIRouter, status, Depends
 from db.models import Good
 from schemas.good import (
     GoodWithSpecsGetSchema,
+    GoodWithSpecsCreateSchema,
 )
 from services.good import GoodService
 
@@ -19,9 +20,12 @@ async def get_good_by_id(
     return await good_service.get_by_guid(guid=guid)
 
 
-# @router.post("", status_code=status.HTTP_201_CREATED, response_model=GoodCreateSchema)
-# async def create_good(
-#     data: GoodWithSpecsCreateSchema,
-#     good_service: GoodService = Depends(),
-# ) -> Good:
-#     return await good_service.create_or_update(data=data)
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_good(
+    data: GoodWithSpecsCreateSchema,
+    good_service: GoodService = Depends(),
+) -> GoodWithSpecsGetSchema:
+    return await good_service.create_or_update(data=data)
