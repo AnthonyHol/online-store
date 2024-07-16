@@ -1,36 +1,67 @@
 from typing import Sequence
 
-from sqlalchemy import delete, select
+from sqlalchemy import select, delete
+from sqlalchemy.orm import selectinload
 
-from db.models import Specification, Property
+from db.models import Specification, Good
+from db.models.association import goods_specifications
 from db.repositories.base import BaseDatabaseRepository
-from schemas.specification import SpecificationSchema
+from schemas.specification import SpecificationCreateOrUpdateSchema
 
 
 class SpecificationRepository(BaseDatabaseRepository):
-    async def get_by_guid(self, guid: str) -> Specification | None:
-        query = select(Specification).where(Specification.guid == guid).join(Property)
-        query_result = await self._session.execute(query)
-
-        return query_result.scalar()
-
-    async def create(self, data: SpecificationSchema, good_guid: str) -> Specification:
-        specification = Specification()
-        specification.guid = data.guid
-        specification.name = data.name
-        specification.good_guid = good_guid
+    async def create(self, data: SpecificationCreateOrUpdateSchema) -> Specification:
+        specification = Specification(**data.model_dump())
 
         self._session.add(specification)
         await self._session.flush()
 
         return specification
 
+    async def create_batch(
+        self, data: list[SpecificationCreateOrUpdateSchema]
+    ) -> list[Specification]:
+        specifications: list[Specification] = []
+
+        for specification in data:
+            specifications.append(Specification(**specification.model_dump()))
+
+        self._session.add_all(specifications)
+        await self._session.flush()
+
+        return specifications
+
+    async def get_by_good_guid(self, good_guid: str) -> Sequence[Specification]:
+        query = (
+            select(Specification)
+            .join(
+                goods_specifications,
+                Specification.guid == goods_specifications.c.specification_guid,
+            )
+            .join(Good, Good.guid == goods_specifications.c.good_guid)
+            .where(Good.guid == good_guid)
+        )
+
+        query_result = await self._session.execute(query)
+
+        return query_result.scalars().all()
+
+    async def get_by_guid(self, guid: str) -> Specification | None:
+        query = (
+            select(Specification)
+            .options(selectinload(Specification.properties))
+            .where(Specification.guid == guid)
+        )
+
+        query_result = await self._session.execute(query)
+
+        return query_result.scalar()
+
     async def update(
-        self, instance: Specification, data: SpecificationSchema, good_guid: str
+        self, instance: Specification, data: SpecificationCreateOrUpdateSchema
     ) -> None:
-        instance.guid = data.guid
-        instance.name = data.name
-        instance.good_guid = good_guid
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(instance, key, value)
 
         await self._session.flush()
 
@@ -39,8 +70,5 @@ class SpecificationRepository(BaseDatabaseRepository):
             delete(Specification).where(Specification.guid == guid)
         )
 
-    async def get_by_good_guid(self, good_guid: str) -> Sequence[Specification]:
-        query = select(Specification).where(Specification.good_guid == good_guid)
-        query_result = await self._session.execute(query)
-
-        return query_result.scalars().all()
+    async def delete_with_properties(self, guid: str) -> None:
+        await self.delete(guid=guid)

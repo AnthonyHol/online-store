@@ -1,13 +1,16 @@
-from typing import Sequence
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions import specification_not_found_exception
-from db.models import Specification, Property
+from db.models import Specification
 from db.repositories.specification import SpecificationRepository
 from db.session import get_session
-from schemas.specification import SpecificationSchema
+from schemas.property import PropertyGetSchema
+from schemas.specification import (
+    SpecificationWithPropertiesCreateSchema,
+    SpecificationCreateOrUpdateSchema,
+    SpecificationWithPropertiesGetSchema,
+)
 from services.property import PropertyService
 
 
@@ -30,49 +33,78 @@ class SpecificationService:
 
         return specification
 
-    async def get_by_good_guid(self, good_guid: str) -> Sequence[Specification]:
-        return await self._specification_repository.get_by_good_guid(
-            good_guid=good_guid
-        )
-
-    async def create(self, data: SpecificationSchema, good_guid: str) -> Specification:
+    async def create(
+        self, data: SpecificationWithPropertiesCreateSchema
+    ) -> SpecificationWithPropertiesGetSchema:
         specification = await self._specification_repository.create(
-            data=data, good_guid=good_guid
+            data=SpecificationCreateOrUpdateSchema(guid=data.guid, name=data.name)
         )
 
-        return specification
+        spec_properties = await self._property_service.create_batch(
+            data=data.properties, specification_guid=specification.guid
+        )
+
+        specification_with_properties = SpecificationWithPropertiesGetSchema(
+            guid=specification.guid,
+            name=specification.name,
+            properties=[
+                PropertyGetSchema.model_validate(spec_property)
+                for spec_property in spec_properties
+            ],
+        )
+
+        return specification_with_properties
+
+    async def create_batch(
+        self, data: list[SpecificationWithPropertiesCreateSchema]
+    ) -> list[SpecificationWithPropertiesGetSchema]:
+        specifications_with_properties: list[SpecificationWithPropertiesGetSchema] = []
+
+        for specification in data:
+            specifications_with_properties.append(await self.create(data=specification))
+
+        return specifications_with_properties
 
     async def update(
-        self, guid: str, data: SpecificationSchema, good_guid: str
-    ) -> Specification:
-        specification = await self.get_by_guid(guid=guid)
+        self, instance: Specification, data: SpecificationWithPropertiesCreateSchema
+    ) -> SpecificationWithPropertiesGetSchema:
         await self._specification_repository.update(
-            instance=specification, data=data, good_guid=good_guid
+            instance=instance,
+            data=SpecificationCreateOrUpdateSchema(guid=data.guid, name=data.name),
         )
 
-        return specification
+        spec_properties = await self._property_service.update_batch(
+            data=data.properties, specification_guid=instance.guid
+        )
 
-    async def create_or_update(
-        self, data: SpecificationSchema, good_guid: str
-    ) -> Specification:
-        specification = await self._specification_repository.get_by_guid(guid=data.guid)
+        return SpecificationWithPropertiesGetSchema(
+            guid=instance.guid,
+            name=instance.name,
+            properties=[
+                PropertyGetSchema.model_validate(spec_property)
+                for spec_property in spec_properties
+            ],
+        )
 
-        if not specification:
-            specification = await self.create(data=data, good_guid=good_guid)
-        else:
-            specification = await self.update(
-                guid=data.guid, data=data, good_guid=good_guid
+    async def create_or_update_batch(
+        self, data: list[SpecificationWithPropertiesCreateSchema]
+    ) -> list[SpecificationWithPropertiesGetSchema]:
+        specifications_with_properties: list[SpecificationWithPropertiesGetSchema] = []
+
+        for specification in data:
+            specification_in_db = await self._specification_repository.get_by_guid(
+                guid=specification.guid
             )
 
-        properties: list[Property] = []
-
-        for spec_property in data.properties:
-            properties.append(
-                await self._property_service.create_or_update(
-                    data=spec_property, specification_guid=data.guid
+            if not specification_in_db:
+                specifications_with_properties.append(
+                    await self.create(data=specification)
                 )
-            )
+            else:
+                specifications_with_properties.append(
+                    await self.update(instance=specification_in_db, data=specification)
+                )
 
-        await self._session.commit()
+            await self._session.commit()
 
-        return specification
+        return specifications_with_properties

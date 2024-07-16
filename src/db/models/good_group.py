@@ -28,4 +28,5 @@ class GoodGroup(BaseModel, GUIDMixin):
         back_populates="good_group",
         foreign_keys="Good.good_group_guid",
         lazy="selectin",
+        cascade="all, delete-orphan",
     )

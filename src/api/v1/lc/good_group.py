@@ -6,7 +6,7 @@ from db.models import GoodGroup
 from schemas.good_group import GoodGroupSchema
 from services.good_group import GoodGroupService
 
-router = APIRouter(prefix="/1c/good_groups", tags=["1C Группы товаров"])
+router = APIRouter(prefix="/good_groups", tags=["1C Группы товаров"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=GoodGroupSchema)

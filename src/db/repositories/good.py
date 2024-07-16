@@ -1,4 +1,5 @@
 from sqlalchemy import delete, select
+from sqlalchemy.orm import selectinload
 
 from db.models import Good, Specification
 from db.repositories.base import BaseDatabaseRepository
@@ -7,7 +8,14 @@ from schemas.good import GoodCreateSchema
 
 class GoodRepository(BaseDatabaseRepository):
     async def get_by_guid(self, guid: str) -> Good | None:
-        query = select(Good).where(Good.guid == guid).join(Specification)
+        query = (
+            select(Good)
+            .options(
+                selectinload(Good.specifications).selectinload(Specification.properties)
+            )
+            .where(Good.guid == guid)
+        )
+
         query_result = await self._session.execute(query)
 
         return query_result.scalar()

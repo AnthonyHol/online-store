@@ -1,5 +1,6 @@
+from db.models.association import goods_specifications
 from db.models.base import BaseModel
-from sqlalchemy import ForeignKey, String, PrimaryKeyConstraint
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.mixins import GUIDMixin
@@ -8,14 +9,10 @@ from db.models.mixins import GUIDMixin
 class Specification(BaseModel, GUIDMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    good_guid: Mapped[str] = mapped_column(
-        String(255), ForeignKey("goods.guid"), nullable=False
-    )
-
-    good: Mapped["Good"] = relationship(  # type: ignore # noqa: F821
+    goods: Mapped[list["Good"]] = relationship(  # type: ignore # noqa: F821
         "Good",
+        secondary=goods_specifications,
         back_populates="specifications",
-        foreign_keys="Specification.good_guid",
         lazy="selectin",
     )
 
@@ -24,8 +21,5 @@ class Specification(BaseModel, GUIDMixin):
         back_populates="specification",
         foreign_keys="Property.specification_guid",
         lazy="selectin",
-    )
-
-    __table_args__ = (
-        PrimaryKeyConstraint('guid', 'good_guid'),
+        cascade="all, delete-orphan",
     )

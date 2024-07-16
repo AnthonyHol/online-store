@@ -1,6 +1,6 @@
 from core.enum import PropertyNamesEnum
 from db.models.base import BaseModel
-from sqlalchemy import ForeignKey, String, Enum
+from sqlalchemy import ForeignKey, Enum, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.mixins import GUIDMixin
@@ -10,6 +10,7 @@ class Property(BaseModel, GUIDMixin):
     name: Mapped[PropertyNamesEnum] = mapped_column(
         Enum(PropertyNamesEnum), nullable=False
     )
+    value: Mapped[str] = mapped_column(Text, nullable=False)
 
     specification_guid: Mapped[str] = mapped_column(
         String(255), ForeignKey("specifications.guid"), nullable=False

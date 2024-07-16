@@ -1,4 +1,5 @@
 from core.enum import GoodTypesEnum
+from db.models.association import goods_specifications
 from db.models.base import BaseModel
 from sqlalchemy import ForeignKey, String, Enum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -11,7 +12,7 @@ class Good(BaseModel, GUIDMixin):
     type: Mapped[GoodTypesEnum] = mapped_column(
         Enum(GoodTypesEnum), default=GoodTypesEnum.REGULAR, nullable=False
     )
-    description: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True, default=None)
 
     good_group_guid: Mapped[str] = mapped_column(
         String(255), ForeignKey("good_groups.guid"), nullable=False
@@ -26,7 +27,7 @@ class Good(BaseModel, GUIDMixin):
 
     specifications: Mapped[list["Specification"]] = relationship(  # type: ignore # noqa: F821
         "Specification",
-        back_populates="good",
-        foreign_keys="Specification.good_guid",
+        secondary=goods_specifications,
+        back_populates="goods",
         lazy="selectin",
     )

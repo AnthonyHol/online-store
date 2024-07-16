@@ -1,15 +1,22 @@
 from core.enum import GoodTypesEnum
 from schemas.base import BaseOrmSchema
-from schemas.specification import SpecificationSchema
+from schemas.specification import (
+    SpecificationWithPropertiesCreateSchema,
+    SpecificationWithPropertiesGetSchema,
+)
 
 
 class GoodCreateSchema(BaseOrmSchema):
     guid: str
     name: str
-    description: str
+    description: str | None = None
     good_group_guid: str
     type: GoodTypesEnum = GoodTypesEnum.REGULAR
 
 
-class ExtendedGoodCreateSchema(GoodCreateSchema):
-    specifications: list[SpecificationSchema]
+class GoodWithSpecsCreateSchema(GoodCreateSchema):
+    specifications: list[SpecificationWithPropertiesCreateSchema]
+
+
+class GoodWithSpecsGetSchema(GoodCreateSchema):
+    specifications: list[SpecificationWithPropertiesGetSchema]

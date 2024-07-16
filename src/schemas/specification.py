@@ -1,8 +1,15 @@
 from schemas.base import BaseOrmSchema
-from schemas.property import PropertySchema
+from schemas.property import PropertyGetSchema, BasePropertySchema
 
 
-class SpecificationSchema(BaseOrmSchema):
+class SpecificationCreateOrUpdateSchema(BaseOrmSchema):
     guid: str
     name: str
-    properties: list[PropertySchema]
+
+
+class SpecificationWithPropertiesCreateSchema(SpecificationCreateOrUpdateSchema):
+    properties: list[BasePropertySchema]
+
+
+class SpecificationWithPropertiesGetSchema(SpecificationCreateOrUpdateSchema):
+    properties: list[PropertyGetSchema]
