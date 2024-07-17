@@ -15,11 +15,3 @@ class Specification(BaseModel, GUIDMixin):
         back_populates="specifications",
         lazy="selectin",
     )
-
-    properties: Mapped[list["Property"]] = relationship(  # type: ignore # noqa: F821
-        "Property",
-        back_populates="specification",
-        foreign_keys="Property.specification_guid",
-        lazy="selectin",
-        cascade="all, delete-orphan",
-    )

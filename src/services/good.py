@@ -51,14 +51,10 @@ class GoodService:
             )
 
     async def create_or_update(self, data: GoodWithSpecsCreateSchema) -> Good:
+        await self._good_group_service.get_by_guid(guid=data.good_group_guid)
+
         good = await self._good_repository.merge(
-            data=GoodCreateSchema(
-                guid=data.guid,
-                name=data.name,
-                description=data.description,
-                good_group_guid=data.good_group_guid,
-                type=data.type,
-            )
+            data=GoodCreateSchema(**data.model_dump(exclude={"specifications"}))
         )
 
         await self.delete_specification_association(data=data)
@@ -71,6 +67,7 @@ class GoodService:
             await self._good_repository.create_association_with_specification(
                 good_guid=good.guid, specification_guid=specification.guid
             )
+            good.specifications.append(specification)
 
         await self._session.commit()
 

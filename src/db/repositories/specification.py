@@ -6,7 +6,7 @@ from db.models import Specification, Good
 from db.models.association import goods_specifications
 from db.repositories.base import BaseDatabaseRepository
 from schemas.specification import (
-    SpecificationWithPropertiesCreateSchema,
+    SpecificationSchema,
 )
 
 
@@ -29,13 +29,11 @@ class SpecificationRepository(BaseDatabaseRepository):
     async def get_by_guid(self, guid: str) -> Specification | None:
         return await self._session.get(Specification, guid)
 
-    async def merge_batch(
-        self, data: list[SpecificationWithPropertiesCreateSchema]
-    ) -> list[Specification]:
+    async def merge_batch(self, data: list[SpecificationSchema]) -> list[Specification]:
         created_specifications: list[Specification] = []
 
         for item in data:
-            specification = Specification(**item.model_dump(exclude={"properties"}))
+            specification = Specification(**item.model_dump())
             await self._session.merge(specification)
 
             created_specifications.append(specification)

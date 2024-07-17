@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 
 from db.models import Specification
-from schemas.specification import SpecificationWithPropertiesGetSchema
+from schemas.specification import SpecificationSchema
 from services.specification import SpecificationService
 
 router = APIRouter(prefix="/specifications", tags=["1C Характеристики номенклатуры"])
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/specifications", tags=["1C Характеристи�
 @router.get(
     "/{guid}",
     status_code=status.HTTP_200_OK,
-    response_model=SpecificationWithPropertiesGetSchema,
+    response_model=SpecificationSchema,
 )
 async def get_specification_by_guid(
     guid: str,
