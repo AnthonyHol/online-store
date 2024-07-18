@@ -1,4 +1,3 @@
-
 from core.enum import GoodTypesEnum
 from schemas.base import BaseOrmSchema
 from schemas.specification import SpecificationSchema
@@ -19,6 +18,7 @@ class GoodCreateSchema(BaseOrmSchema):
     package: str = ""
     block: str = ""
     box: str = ""
+    producing_country: str = ""
 
 
 class GoodWithSpecsCreateSchema(GoodCreateSchema):

@@ -1,8 +1,8 @@
 """Init models
 
-Revision ID: 41e78026cddf
+Revision ID: beb850e83494
 Revises:
-Create Date: 2024-07-17 09:32:45.004286
+Create Date: 2024-07-18 18:03:55.709584
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 import db
 
 # revision identifiers, used by Alembic.
-revision: str | None = "41e78026cddf"
+revision: str | None = "beb850e83494"
 down_revision: str | None = None
 branch_labels: str | None = None
 depends_on: str | None = None
@@ -55,6 +55,7 @@ def upgrade() -> None:
         sa.Column("package", sa.String(length=255), nullable=True),
         sa.Column("block", sa.String(length=255), nullable=True),
         sa.Column("box", sa.String(length=255), nullable=True),
+        sa.Column("producing_country", sa.String(length=255), nullable=True),
         sa.Column("good_group_guid", sa.String(length=255), nullable=False),
         sa.Column("guid", db.models.mixins.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
