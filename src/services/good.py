@@ -1,27 +1,33 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.exceptions import good_not_found_exception
+from core.exceptions import good_not_found_exception, encoded_image_exception
 from db.models import Good
 from db.repositories.good import GoodRepository
 from db.session import get_session
 from schemas.good import (
     GoodWithSpecsCreateSchema,
     GoodCreateSchema,
+    ImageAddSchema,
 )
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
+from services.utils import base64_to_bytes_image
+from storages.s3 import S3Storage
 
 
 class GoodService:
     def __init__(
         self,
         session: AsyncSession = Depends(get_session),
+        storage: S3Storage = Depends(),
         good_repository: GoodRepository = Depends(),
         specification_service: SpecificationService = Depends(),
         good_group_service: GoodGroupService = Depends(),
     ):
         self._session = session
+        self._s3_storage = storage
+
         self._good_repository = good_repository
         self._specification_service = specification_service
         self._good_group_service = good_group_service
@@ -69,6 +75,26 @@ class GoodService:
             )
             good.specifications.append(specification)
 
+        await self._session.commit()
+
+        return good
+
+    async def add_image(self, data: ImageAddSchema) -> Good:
+        good = await self.get_by_guid(guid=data.good_guid)
+
+        image = base64_to_bytes_image(base64_image=data.image)
+
+        if not image:
+            raise
+
+        image_key = await self._s3_storage.upload_file(
+            key=data.good_guid, data=image, content_type="image/jpeg"
+        )
+
+        if not image_key:
+            raise encoded_image_exception
+
+        await self._good_repository.add_image(instance=good, image_key=image_key)
         await self._session.commit()
 
         return good

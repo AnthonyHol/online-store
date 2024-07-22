@@ -24,10 +24,10 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "store"
 
     S3_DSN: str = "http://localhost:9000"
-    S3_ACCESS_KEY_ID: str = "price-store-app"
-    S3_SECRET_ACCESS_KEY: str = "price-store-app"
+    S3_ACCESS_KEY_ID: str = "store-app"
+    S3_SECRET_ACCESS_KEY: str = "store-app"
     S3_REGION_NAME: str = "eu-central-1"
-    S3_BUCKET_NAME: str = "price-store-app"
+    S3_BUCKET_NAME: str = "store-app"
     STORAGE_FILE_PATH: str = "goods"
     PRESIGNED_FILE_URL_EXPIRATION_TIME: int = 3600
 

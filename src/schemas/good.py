@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+
 from core.enum import GoodTypesEnum
 from schemas.base import BaseOrmSchema
 from schemas.specification import SpecificationSchema
@@ -27,3 +29,9 @@ class GoodWithSpecsCreateSchema(GoodCreateSchema):
 
 class GoodWithSpecsGetSchema(GoodCreateSchema):
     specifications: list[SpecificationSchema]
+    image_key: str | None
+
+
+class ImageAddSchema(BaseModel):
+    good_guid: str
+    image: str

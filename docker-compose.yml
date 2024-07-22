@@ -1,41 +1,63 @@
 version: '3.3'
 
 services:
-  db:
-    image: postgres:latest
-    container_name: db
-    restart: always
+#  db:
+#    image: postgres:latest
+#    container_name: db
+#    restart: always
+#    environment:
+#      POSTGRES_USER: two_captains_store
+#      POSTGRES_PASSWORD: Kosw0yhrv+238Pzs
+#      POSTGRES_DB: store
+#      TZ: Europe/Moscow
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data/
+
+  minio:
+    image: bitnami/minio:latest
+    restart: on-failure
     environment:
-      POSTGRES_USER:
-      POSTGRES_PASSWORD:
-      POSTGRES_DB: store
-      TZ: Europe/Moscow
-    ports:
-      - "5432:5432"
+      - MINIO_ROOT_USER=store-app
+      - MINIO_ROOT_PASSWORD=store-app
+      - MINIO_DEFAULT_BUCKET=store-app
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-
-  api:
-    build:
-      context: .
-      dockerfile: src/Dockerfile
-    container_name: api
-    working_dir: /usr/src/app/src
-    restart: on-failure
-    env_file:
-      - ./src/core/.env
-    depends_on:
-      - db
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
-
-  nginx:
-    build: ./nginx/dev
-    restart: on-failure
-    container_name: nginx
+      - minio_data:/data
     ports:
-      - "8081:8081"
-    depends_on:
-      - api
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+#  api:
+#    build:
+#      context: .
+#      dockerfile: src/Dockerfile
+#    container_name: api
+#    working_dir: /usr/src/app/src
+#    restart: on-failure
+#    env_file:
+#      - ./src/core/.env
+#    depends_on:
+#      - db
+#      - minio
+#    command: uvicorn main:app --host 0.0.0.0 --port 8000
+#
+#  nginx:
+#    build: ./nginx/dev
+#    restart: on-failure
+#    container_name: nginx
+#    ports:
+#      - "8081:8081"
+#      - "8082:8082"
+#    depends_on:
+#      - minio
+#      - api
 
 volumes:
-  postgres_data:
+#  postgres_data:
+  minio_data:

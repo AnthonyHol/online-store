@@ -34,3 +34,8 @@ class GoodRepository(BaseDatabaseRepository):
             goods_specifications.c.specification_guid == specification_guid,
         )
         await self._session.execute(query)
+
+    async def add_image(self, instance: Good, image_key: str) -> None:
+        instance.image_key = image_key
+
+        await self._session.flush()

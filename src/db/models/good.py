@@ -33,6 +33,7 @@ class Good(BaseModel, GUIDMixin):
     producing_country: Mapped[str | None] = mapped_column(
         String(255), nullable=True, default=None
     )
+    image_key: Mapped[str | None] = mapped_column(Text, nullable=True, default=None)
 
     good_group_guid: Mapped[str] = mapped_column(
         String(255), ForeignKey("good_groups.guid"), nullable=False
