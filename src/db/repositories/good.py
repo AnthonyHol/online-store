@@ -1,4 +1,6 @@
-from sqlalchemy import insert, delete
+from typing import Sequence
+
+from sqlalchemy import insert, delete, select
 
 from db.models import Good
 from db.models.association import goods_specifications
@@ -39,3 +41,8 @@ class GoodRepository(BaseDatabaseRepository):
         instance.image_key = image_key
 
         await self._session.flush()
+
+    async def get_all(self) -> Sequence[Good]:
+        query_result = await self._session.execute(select(Good))
+
+        return query_result.scalars().all()

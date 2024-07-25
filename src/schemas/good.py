@@ -27,7 +27,18 @@ class GoodWithSpecsCreateSchema(GoodCreateSchema):
     specifications: list[SpecificationSchema]
 
 
-class GoodWithSpecsGetSchema(GoodCreateSchema):
+class GoodGetSchema(GoodCreateSchema):
+    image_key: str | None
+
+
+class GoodCardGetSchema(BaseOrmSchema):
+    guid: str
+    name: str
+    type: GoodTypesEnum = GoodTypesEnum.REGULAR
+    image_key: str | None
+
+
+class GoodWithSpecsGetSchema(GoodGetSchema):
     specifications: list[SpecificationSchema]
     image_key: str | None
 

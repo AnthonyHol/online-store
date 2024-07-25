@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -10,6 +11,8 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
     docs_url="/api/swagger",
 )
+
+add_pagination(app)
 
 app.add_middleware(
     CORSMiddleware,
