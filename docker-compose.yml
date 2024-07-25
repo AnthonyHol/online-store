@@ -1,19 +1,19 @@
 version: '3.3'
 
 services:
-#  db:
-#    image: postgres:latest
-#    container_name: db
-#    restart: always
-#    environment:
-#      POSTGRES_USER: two_captains_store
-#      POSTGRES_PASSWORD: Kosw0yhrv+238Pzs
-#      POSTGRES_DB: store
-#      TZ: Europe/Moscow
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data/
+  db:
+    image: postgres:latest
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: two_captains_store
+      POSTGRES_PASSWORD: Kosw0yhrv+238Pzs
+      POSTGRES_DB: store
+      TZ: Europe/Moscow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
 
   minio:
     image: bitnami/minio:latest
@@ -33,31 +33,31 @@ services:
       timeout: 20s
       retries: 3
 
-#  api:
-#    build:
-#      context: .
-#      dockerfile: src/Dockerfile
-#    container_name: api
-#    working_dir: /usr/src/app/src
-#    restart: on-failure
-#    env_file:
-#      - ./src/core/.env
-#    depends_on:
-#      - db
-#      - minio
-#    command: uvicorn main:app --host 0.0.0.0 --port 8000
-#
-#  nginx:
-#    build: ./nginx/dev
-#    restart: on-failure
-#    container_name: nginx
-#    ports:
-#      - "8081:8081"
-#      - "8082:8082"
-#    depends_on:
-#      - minio
-#      - api
+  api:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    container_name: api
+    working_dir: /usr/src/app/src
+    restart: on-failure
+    env_file:
+      - ./src/core/.env
+    depends_on:
+      - db
+      - minio
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  nginx:
+    build: ./nginx/dev
+    restart: on-failure
+    container_name: nginx
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+    depends_on:
+      - minio
+      - api
 
 volumes:
-#  postgres_data:
+  postgres_data:
   minio_data:
