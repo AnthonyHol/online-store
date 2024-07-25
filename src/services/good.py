@@ -44,7 +44,8 @@ class GoodService:
         if not good:
             raise good_not_found_exception
 
-        good.image_key = await self._s3_storage.generate_presigned_url(key=good.image_key)
+        image_path = await self._s3_storage.generate_presigned_url(key=good.image_key)
+        good.image_key = image_path.replace("minio:9000", "147.45.141.49:8082") if image_path else None
 
         return good
 
@@ -111,6 +112,7 @@ class GoodService:
         goods = await self._good_repository.get_all()
 
         for good in goods:
-            good.image_key = await self._s3_storage.generate_presigned_url(key=good.image_key)
+            image_path = await self._s3_storage.generate_presigned_url(key=good.image_key)
+            good.image_key = image_path.replace("minio:9000", "147.45.141.49:8082") if image_path else None
 
         return goods
