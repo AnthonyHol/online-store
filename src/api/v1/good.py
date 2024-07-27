@@ -1,5 +1,5 @@
-from fastapi import APIRouter, status, Depends
-from fastapi_pagination import Page, paginate
+
+from fastapi import APIRouter, status, Depends, Query
 
 from db.models import Good
 from schemas.good import (
@@ -11,11 +11,13 @@ from services.good import GoodService
 router = APIRouter(prefix="/goods", tags=["Товары"])
 
 
-@router.get("", status_code=status.HTTP_200_OK, response_model=Page[GoodCardGetSchema])
-async def get_goods(
+@router.get("", status_code=status.HTTP_200_OK)
+async def get_goods_by_filter(
     good_service: GoodService = Depends(),
-) -> Page[Good]:
-    return paginate(await good_service.get_goods())
+    page: int = Query(ge=0, default=0),
+    size: int = Query(ge=1, le=100, default=20),
+) -> list[dict[str, int] | GoodCardGetSchema]:
+    return await good_service.get_by_filters(page=page, size=size)
 
 
 @router.get(

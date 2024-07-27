@@ -1,4 +1,5 @@
-from typing import Sequence
+import math
+from typing import Sequence, Any
 
 from sqlalchemy import insert, delete, select
 
@@ -9,6 +10,25 @@ from schemas.good import GoodCreateSchema
 
 
 class GoodRepository(BaseDatabaseRepository):
+    @staticmethod
+    def get_pagination_result(
+        result: Sequence[Good], page: int, size: int
+    ) -> tuple[list[Good], list[dict[str, int]]]:
+        offset_min = page * size
+        offset_max = (page + 1) * size
+
+        pagination_result = list(result[offset_min:offset_max])
+        pagination_info = [
+            {
+                "page": page,
+                "size": size,
+                "pages": math.ceil(len(result) / size) - 1,
+                "total": len(result),
+            }
+        ]
+
+        return pagination_result, pagination_info
+
     async def get_by_guid(self, guid: str) -> Good | None:
         return await self._session.get(Good, guid)
 
@@ -46,3 +66,12 @@ class GoodRepository(BaseDatabaseRepository):
         query_result = await self._session.execute(select(Good))
 
         return query_result.scalars().all()
+
+    async def get_by_filters(
+        self, page: int, size: int, filters: Any = None
+    ) -> tuple[list[Good], list[dict[str, int]]]:
+        query = select(Good)
+        query_result = await self._session.execute(query)
+        result = query_result.scalars().all()
+
+        return self.get_pagination_result(result=result, page=page, size=size)

@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Any
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +15,7 @@ from schemas.good import (
     GoodWithSpecsCreateSchema,
     GoodCreateSchema,
     ImageAddSchema,
+    GoodCardGetSchema,
 )
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
@@ -44,7 +45,9 @@ class GoodService:
         if not good:
             raise good_not_found_exception
 
-        good.image_key = await self._s3_storage.generate_presigned_url(key=good.image_key)
+        good.image_key = await self._s3_storage.generate_presigned_url(
+            key=good.image_key
+        )
 
         return good
 
@@ -107,10 +110,19 @@ class GoodService:
 
         return good
 
-    async def get_goods(self) -> Sequence[Good]:
-        goods = await self._good_repository.get_all()
+    async def get_by_filters(
+        self, page: int, size: int, filters: Any = None
+    ) -> list[dict[str, int] | GoodCardGetSchema]:
+        goods, pagination_info = await self._good_repository.get_by_filters(
+            filters=filters, page=page, size=size
+        )
+
+        schema_goods = []
 
         for good in goods:
-            good.image_key = await self._s3_storage.generate_presigned_url(key=good.image_key)
+            good.image_key = await self._s3_storage.generate_presigned_url(
+                key=good.image_key
+            )
+            schema_goods.append(GoodCardGetSchema.model_validate(good))
 
-        return goods
+        return schema_goods + pagination_info
