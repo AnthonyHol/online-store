@@ -20,7 +20,7 @@ from schemas.good import (
 )
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
-from services.utils import base64_to_bytes_image
+from services.utils import base64_to_bytes_image, resize_image
 from storages.s3 import S3Storage
 
 
@@ -100,7 +100,9 @@ class GoodService:
             raise encoded_image_exception
 
         image_key = await self._s3_storage.upload_file(
-            key=data.good_guid, data=image, content_type="image/jpeg"
+            key=data.good_guid,
+            data=resize_image(image=image),
+            content_type="image/jpeg",
         )
 
         if not image_key:

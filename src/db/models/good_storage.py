@@ -8,7 +8,6 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
-
 class GoodStorage(BaseModel):
     in_stock: Mapped[int] = mapped_column(Integer, nullable=False)
 

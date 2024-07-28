@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str = "store-app"
     STORAGE_FILE_PATH: str = "goods"
     PRESIGNED_FILE_URL_EXPIRATION_TIME: int = 3600
+    MAX_SIZE_IMAGE: int = 500
 
     SESSION_MIDDLEWARE_SECRET: str = "secret"
 

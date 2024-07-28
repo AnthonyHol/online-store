@@ -21,6 +21,7 @@ inflection = "^0.5.1"
 asyncpg = "^0.29.0"
 fastapi-pagination = "^0.12.26"
 fastapi-filter = "^2.0.0"
+pillow = "^10.4.0"
 
 
 [build-system]
