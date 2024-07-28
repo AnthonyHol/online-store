@@ -46,3 +46,11 @@ class GoodWithSpecsGetSchema(GoodGetSchema):
 class ImageAddSchema(BaseModel):
     good_guid: str
     image: str
+
+
+class GoodPageSchema(BaseModel):
+    items: list[GoodCardGetSchema]
+    page: int
+    size: int
+    pages: int
+    total: int

@@ -13,21 +13,19 @@ class GoodRepository(BaseDatabaseRepository):
     @staticmethod
     def get_pagination_result(
         result: Sequence[Good], page: int, size: int
-    ) -> tuple[list[Good], list[dict[str, int]]]:
+    ) -> dict[str, Any]:
         offset_min = page * size
         offset_max = (page + 1) * size
 
-        pagination_result = list(result[offset_min:offset_max])
-        pagination_info = [
-            {
-                "page": page,
-                "size": size,
-                "pages": math.ceil(len(result) / size) - 1,
-                "total": len(result),
-            }
-        ]
+        pagination_result = {
+            "items": list(result[offset_min:offset_max]),
+            "page": page,
+            "size": size,
+            "pages": math.ceil(len(result) / size) - 1,
+            "total": len(result),
+        }
 
-        return pagination_result, pagination_info
+        return pagination_result
 
     async def get_by_guid(self, guid: str) -> Good | None:
         return await self._session.get(Good, guid)
@@ -69,7 +67,7 @@ class GoodRepository(BaseDatabaseRepository):
 
     async def get_by_filters(
         self, page: int, size: int, filters: Any = None
-    ) -> tuple[list[Good], list[dict[str, int]]]:
+    ) -> dict[str, Any]:
         query = select(Good)
         query_result = await self._session.execute(query)
         result = query_result.scalars().all()

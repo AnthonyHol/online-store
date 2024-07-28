@@ -16,6 +16,7 @@ from schemas.good import (
     GoodCreateSchema,
     ImageAddSchema,
     GoodCardGetSchema,
+    GoodPageSchema,
 )
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
@@ -112,17 +113,23 @@ class GoodService:
 
     async def get_by_filters(
         self, page: int, size: int, filters: Any = None
-    ) -> list[dict[str, int] | GoodCardGetSchema]:
-        goods, pagination_info = await self._good_repository.get_by_filters(
+    ) -> GoodPageSchema:
+        pagination_result = await self._good_repository.get_by_filters(
             filters=filters, page=page, size=size
         )
 
         schema_goods = []
 
-        for good in goods:
+        for good in pagination_result["items"]:
             good.image_key = await self._s3_storage.generate_presigned_url(
                 key=good.image_key
             )
             schema_goods.append(GoodCardGetSchema.model_validate(good))
 
-        return schema_goods + pagination_info
+        return GoodPageSchema(
+            items=schema_goods,
+            page=pagination_result["page"],
+            size=pagination_result["size"],
+            pages=pagination_result["pages"],
+            total=pagination_result["total"],
+        )
