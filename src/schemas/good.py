@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 from core.enum import GoodTypesEnum
 from schemas.base import BaseOrmSchema
+from schemas.good_storage import GoodStorageGetSchema
 from schemas.specification import SpecificationSchema
 
 
@@ -41,6 +42,7 @@ class GoodCardGetSchema(BaseOrmSchema):
 class GoodWithSpecsGetSchema(GoodGetSchema):
     specifications: list[SpecificationSchema]
     image_key: str | None
+    storages: list[GoodStorageGetSchema]
 
 
 class ImageAddSchema(BaseModel):

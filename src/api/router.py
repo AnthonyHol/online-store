@@ -3,10 +3,12 @@ from api.v1.lc.good_group import router as lc_good_group_router
 from api.v1.lc.good import router as lc_good_router
 from api.v1.lc.specification import router as lc_specification_router
 from api.v1.good import router as good_router
+from api.v1.lc.good_storage import router as lc_good_storage_router
 
 lc_router = APIRouter(prefix="/1c")
 lc_router.include_router(lc_good_group_router)
 lc_router.include_router(lc_good_router)
+lc_router.include_router(lc_good_storage_router)
 lc_router.include_router(lc_specification_router)
 
 v1_router = APIRouter(prefix="/v1")

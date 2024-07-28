@@ -30,3 +30,8 @@ encoded_image_exception = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Ошибка при преобразовании base64 строки в изображение.",
 )
+
+incorrect_in_stock_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="`in_stock` не может быть меньше 0.",
+)

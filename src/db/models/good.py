@@ -52,3 +52,10 @@ class Good(BaseModel, GUIDMixin):
         back_populates="goods",
         lazy="selectin",
     )
+
+    storages: Mapped[list["GoodStorage"]] = relationship(  # type: ignore # noqa: F821
+        "GoodStorage",
+        back_populates="good",
+        foreign_keys="GoodStorage.good_guid",
+        lazy="selectin",
+    )
