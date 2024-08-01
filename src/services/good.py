@@ -26,12 +26,12 @@ from storages.s3 import S3Storage
 
 class GoodService:
     def __init__(
-        self,
-        session: AsyncSession = Depends(get_session),
-        storage: S3Storage = Depends(),
-        good_repository: GoodRepository = Depends(),
-        specification_service: SpecificationService = Depends(),
-        good_group_service: GoodGroupService = Depends(),
+            self,
+            session: AsyncSession = Depends(get_session),
+            storage: S3Storage = Depends(),
+            good_repository: GoodRepository = Depends(),
+            specification_service: SpecificationService = Depends(),
+            good_group_service: GoodGroupService = Depends(),
     ):
         self._session = session
         self._s3_storage = storage
@@ -53,7 +53,7 @@ class GoodService:
         return good
 
     async def delete_specification_association(
-        self, data: GoodWithSpecsCreateSchema
+            self, data: GoodWithSpecsCreateSchema
     ) -> None:
         current_specifications = await self._specification_service.get_by_good_guid(
             good_guid=data.guid
@@ -114,7 +114,7 @@ class GoodService:
         return good
 
     async def get_by_filters(
-        self, page: int, size: int, filters: Any = None
+            self, page: int, size: int, filters: Any = None
     ) -> GoodPageSchema:
         pagination_result = await self._good_repository.get_by_filters(
             filters=filters, page=page, size=size
@@ -126,7 +126,15 @@ class GoodService:
             good.image_key = await self._s3_storage.generate_presigned_url(
                 key=good.image_key
             )
-            schema_goods.append(GoodCardGetSchema.model_validate(good))
+
+            good_schema = GoodCardGetSchema.model_validate(good)
+
+            if good_schema.image_key is None:
+                good_schema.image_key = await self._s3_storage.generate_presigned_url(
+                    key="image not found.png"
+                )
+
+            schema_goods.append(good_schema)
 
         return GoodPageSchema(
             items=schema_goods,
