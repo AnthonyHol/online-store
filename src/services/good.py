@@ -50,6 +50,11 @@ class GoodService:
             key=good.image_key
         )
 
+        if good.image_key is None:
+            good.image_key = await self._s3_storage.generate_presigned_url(
+                key="image not found.png"
+            )
+
         return good
 
     async def delete_specification_association(
