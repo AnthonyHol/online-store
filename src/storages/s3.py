@@ -118,3 +118,9 @@ class S3Storage(BaseStorage):
         ) as e:
             logger.error(f"Unable to get head object {key}: {e}")
             return None
+
+    def get_file_url(self, key: str | None) -> str | None:
+        if key is None:
+            return None
+
+        return f"{self._storage_dsn}/{key}"
