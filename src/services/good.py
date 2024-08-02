@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.constants import PROPERTY_COLUMNS
 from core.exceptions import (
     good_not_found_exception,
     encoded_image_exception,
@@ -75,18 +76,6 @@ class GoodService:
             good.image_key = await self._s3_storage.generate_presigned_url(
                 key="image not found.png"
             )
-
-        PROPERTY_COLUMNS = {
-            "filling": "Начинка",
-            "aroma": "Аромат",
-            "strength": "Крепость",
-            "format": "Формат",
-            "manufacturing_method": "Метод изготовления",
-            "package": "Упаковка",
-            "block": "Блок",
-            "box": "Короб",
-            "producing_country": "Страна производитель",
-        }
 
         property_schemas = [
             GoodPropertyGetSchema(name=value, value=getattr(good, name))
