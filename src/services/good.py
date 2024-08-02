@@ -79,7 +79,7 @@ class GoodService:
 
         property_schemas = [
             GoodPropertyGetSchema(name=value, value=getattr(good, name))
-            for name, value in PROPERTY_COLUMNS.items()
+            for name, value in PROPERTY_COLUMNS.items() if getattr(good, name)
         ]
 
         return GoodWithPropertiesGetSchema(
