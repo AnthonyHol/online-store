@@ -1,9 +1,8 @@
 from fastapi import APIRouter, status, Depends, Query
 
-from db.models import Good
 from schemas.good import (
-    GoodWithSpecsGetSchema,
     GoodPageSchema,
+    GoodWithPropertiesGetSchema,
 )
 from services.good import GoodService
 
@@ -20,10 +19,12 @@ async def get_goods_by_filter(
 
 
 @router.get(
-    "/{guid}", status_code=status.HTTP_200_OK, response_model=GoodWithSpecsGetSchema
+    "/{guid}",
+    status_code=status.HTTP_200_OK,
+    response_model=GoodWithPropertiesGetSchema,
 )
 async def get_good_by_id(
     guid: str,
     good_service: GoodService = Depends(),
-) -> Good:
-    return await good_service.get_by_guid(guid=guid)
+) -> GoodWithPropertiesGetSchema:
+    return await good_service.get_by_guid_with_properties(guid=guid)

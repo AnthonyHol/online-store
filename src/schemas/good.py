@@ -56,3 +56,22 @@ class GoodPageSchema(BaseModel):
     size: int
     pages: int
     total: int
+
+
+class GoodPropertyGetSchema(BaseModel):
+    name: str
+    value: str = ""
+
+
+class GoodWithPropertiesGetSchema(BaseOrmSchema):
+    guid: str
+    name: str
+    good_group_guid: str
+    image_key: str | None
+
+    description: str = ""
+    type: GoodTypesEnum = GoodTypesEnum.REGULAR
+
+    properties: list[GoodPropertyGetSchema]
+    specifications: list[SpecificationSchema]
+    storages: list[GoodStorageGetSchema]
