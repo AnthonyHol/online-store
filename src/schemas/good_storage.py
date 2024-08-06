@@ -16,4 +16,5 @@ class GoodStorageCreateSchema(BaseOrmSchema):
         return v
 
 
-class GoodStorageGetSchema(GoodStorageCreateSchema): ...
+class GoodStorageGetSchema(GoodStorageCreateSchema):
+    specification_name: str

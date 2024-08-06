@@ -73,5 +73,4 @@ class GoodWithPropertiesGetSchema(BaseOrmSchema):
     type: GoodTypesEnum = GoodTypesEnum.REGULAR
 
     properties: list[GoodPropertyGetSchema]
-    specifications: list[SpecificationSchema]
     storages: list[GoodStorageGetSchema]

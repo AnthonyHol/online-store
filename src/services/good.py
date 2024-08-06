@@ -21,6 +21,7 @@ from schemas.good import (
     GoodWithPropertiesGetSchema,
     GoodPropertyGetSchema,
 )
+from schemas.good_storage import GoodStorageGetSchema
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
 from services.utils import base64_to_bytes_image, resize_image
@@ -79,8 +80,21 @@ class GoodService:
 
         property_schemas = [
             GoodPropertyGetSchema(name=value, value=getattr(good, name))
-            for name, value in PROPERTY_COLUMNS.items() if getattr(good, name)
+            for name, value in PROPERTY_COLUMNS.items()
+            if getattr(good, name)
         ]
+
+        storages: list[GoodStorageGetSchema] = []
+
+        for storage in good.storages:
+            storages.append(
+                GoodStorageGetSchema(
+                    good_guid=good.guid,
+                    specification_guid=storage.specification_guid,
+                    in_stock=storage.in_stock,
+                    specification_name=storage.specification.name,
+                )
+            )
 
         return GoodWithPropertiesGetSchema(
             guid=good.guid,
@@ -90,8 +104,7 @@ class GoodService:
             type=good.type,
             image_key=good.image_key,
             properties=property_schemas,
-            specifications=good.specifications,
-            storages=good.storages,
+            storages=storages,
         )
 
     async def delete_specification_association(
