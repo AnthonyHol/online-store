@@ -38,7 +38,9 @@ class GoodStorageService:
         self, data: GoodStorageCreateSchema
     ) -> GoodStorageGetSchema:
         await self._good_service.get_by_guid(guid=data.good_guid)
-        specification = await self._specification_service.get_by_guid(guid=data.specification_guid)
+        specification = await self._specification_service.get_by_guid(
+            guid=data.specification_guid
+        )
 
         good_storage = await self._good_storage_repository.merge(data=data)
         await self._session.commit()
