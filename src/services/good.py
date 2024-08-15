@@ -169,10 +169,10 @@ class GoodService:
         return good
 
     async def get_by_filters(
-        self, page: int, size: int, filters: Any = None
+        self, page: int, size: int, in_stock: bool | None = None, filters: Any = None
     ) -> GoodPageSchema:
         pagination_result = await self._good_repository.get_by_filters(
-            filters=filters, page=page, size=size
+            filters=filters, page=page, size=size, in_stock=in_stock
         )
 
         schema_goods = []

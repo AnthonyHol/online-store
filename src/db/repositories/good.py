@@ -1,9 +1,9 @@
 import math
 from typing import Sequence, Any
 
-from sqlalchemy import insert, delete, select
+from sqlalchemy import insert, delete, select, Select
 
-from db.models import Good
+from db.models import Good, GoodStorage
 from db.models.association import goods_specifications
 from db.repositories.base import BaseDatabaseRepository
 from schemas.good import GoodCreateSchema
@@ -65,10 +65,17 @@ class GoodRepository(BaseDatabaseRepository):
 
         return query_result.scalars().all()
 
+    def get_in_stock(self, query: Select[tuple[Good]]) -> Select[tuple[Good]]:
+        return query.filter(GoodStorage.in_stock > 0)
+
     async def get_by_filters(
-        self, page: int, size: int, filters: Any = None
+        self, page: int, size: int, in_stock: bool | None = None, filters: Any = None
     ) -> dict[str, Any]:
-        query = select(Good)
+        query = select(Good).join(Good.storages)
+
+        if in_stock is not None:
+            query = self.get_in_stock(query=query)
+
         query_result = await self._session.execute(query)
         result = query_result.scalars().all()
 
