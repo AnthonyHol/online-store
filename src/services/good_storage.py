@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import GoodStorage
 from db.repositories.good_storage import GoodStorageRepository
 from db.session import get_session
-from schemas.good_storage import GoodStorageCreateSchema
+from schemas.good_storage import GoodStorageCreateSchema, GoodStorageGetSchema
 from services.good import GoodService
 from services.specification import SpecificationService
 
@@ -34,11 +34,18 @@ class GoodStorageService:
             good_guid=good_guid, specification_guid=specification_guid
         )
 
-    async def create_or_update(self, data: GoodStorageCreateSchema) -> GoodStorage:
+    async def create_or_update(
+        self, data: GoodStorageCreateSchema
+    ) -> GoodStorageGetSchema:
         await self._good_service.get_by_guid(guid=data.good_guid)
         await self._specification_service.get_by_guid(guid=data.specification_guid)
 
         good_storage = await self._good_storage_repository.merge(data=data)
         await self._session.commit()
 
-        return good_storage
+        return GoodStorageGetSchema(
+            good_guid=good_storage.good_guid,
+            specification_guid=good_storage.specification_guid,
+            specification_name=good_storage.specification.name,
+            in_stock=good_storage.in_stock,
+        )
