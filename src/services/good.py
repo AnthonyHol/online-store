@@ -50,15 +50,6 @@ class GoodService:
         if not good:
             raise good_not_found_exception
 
-        good.image_key = await self._s3_storage.generate_presigned_url(
-            key=good.image_key
-        )
-
-        if good.image_key is None:
-            good.image_key = await self._s3_storage.generate_presigned_url(
-                key="image not found.png"
-            )
-
         return good
 
     async def get_by_guid_with_properties(
@@ -69,12 +60,10 @@ class GoodService:
         if not good:
             raise good_not_found_exception
 
-        good.image_key = await self._s3_storage.generate_presigned_url(
-            key=good.image_key
-        )
+        image_key = await self._s3_storage.generate_presigned_url(key=good.image_key)
 
-        if good.image_key is None:
-            good.image_key = await self._s3_storage.generate_presigned_url(
+        if image_key is None:
+            image_key = await self._s3_storage.generate_presigned_url(
                 key="image not found.png"
             )
 
@@ -102,7 +91,7 @@ class GoodService:
             good_group_guid=good.good_group_guid,
             description=good.description,
             type=good.type,
-            image_key=good.image_key,
+            image_key=image_key,
             properties=property_schemas,
             storages=storages,
         )
@@ -178,11 +167,12 @@ class GoodService:
         schema_goods = []
 
         for good in pagination_result["items"]:
-            good.image_key = await self._s3_storage.generate_presigned_url(
+            image_key = await self._s3_storage.generate_presigned_url(
                 key=good.image_key
             )
 
             good_schema = GoodCardGetSchema.model_validate(good)
+            good_schema.image_key = image_key
 
             if good_schema.image_key is None:
                 good_schema.image_key = await self._s3_storage.generate_presigned_url(

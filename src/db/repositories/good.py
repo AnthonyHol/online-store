@@ -65,19 +65,22 @@ class GoodRepository(BaseDatabaseRepository):
 
         return query_result.scalars().all()
 
-    def get_in_stock(self, query: Select[tuple[Good]], in_stock: bool) -> Select[tuple[Good]]:
+    def get_in_stock(
+        self, query: Select[tuple[Good]], in_stock: bool
+    ) -> Select[tuple[Good]]:
         if in_stock:
-            filtered_query = query.filter(GoodStorage.in_stock > 0)
+            filtered_query = query.join(Good.storages).filter(GoodStorage.in_stock > 0)
         else:
-            filtered_query = query.filter(or_(GoodStorage.in_stock == 0, GoodStorage.in_stock.is_(None)))
+            filtered_query = query.outerjoin(Good.storages).filter(
+                or_(GoodStorage.in_stock == 0, GoodStorage.in_stock.is_(None))
+            )
 
         return filtered_query
-
 
     async def get_by_filters(
         self, page: int, size: int, in_stock: bool | None = None, filters: Any = None
     ) -> dict[str, Any]:
-        query = select(Good).join(Good.storages)
+        query = select(Good)
 
         if in_stock is not None:
             query = self.get_in_stock(query=query, in_stock=in_stock)
