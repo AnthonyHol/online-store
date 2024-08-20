@@ -38,6 +38,7 @@ class GoodCardGetSchema(BaseOrmSchema):
     name: str
     type: GoodTypesEnum = GoodTypesEnum.REGULAR
     image_key: str | None
+    prices: list[PriceGetSchema]
 
 
 class GoodWithSpecsGetSchema(GoodGetSchema):
