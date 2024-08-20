@@ -94,6 +94,7 @@ class GoodService:
             image_key=image_key,
             properties=property_schemas,
             storages=storages,
+            prices=good.prices,
         )
 
     async def delete_specification_association(

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from core.enum import GoodTypesEnum
 from schemas.base import BaseOrmSchema
 from schemas.good_storage import GoodStorageGetSchema
+from schemas.price import PriceGetSchema
 from schemas.specification import SpecificationSchema
 
 
@@ -74,3 +75,4 @@ class GoodWithPropertiesGetSchema(BaseOrmSchema):
 
     properties: list[GoodPropertyGetSchema]
     storages: list[GoodStorageGetSchema]
+    prices: list[PriceGetSchema]

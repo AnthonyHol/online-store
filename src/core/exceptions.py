@@ -21,6 +21,11 @@ property_not_found_exception = HTTPException(
     detail="Свойство не найдено",
 )
 
+price_type_not_found_exception = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Вид цены номенклатуры не найден",
+)
+
 upload_image_exception = HTTPException(
     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     detail="Ошибка при загрузке изображения в S3.",
