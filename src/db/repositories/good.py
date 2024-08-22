@@ -1,7 +1,7 @@
 import math
 from typing import Sequence, Any
 
-from sqlalchemy import insert, delete, select, Select, or_
+from sqlalchemy import insert, delete, select, Select, or_, func
 
 from db.models import Good, GoodStorage
 from db.models.association import goods_specifications
@@ -16,13 +16,15 @@ class GoodRepository(BaseDatabaseRepository):
     ) -> dict[str, Any]:
         offset_min = page * size
         offset_max = (page + 1) * size
+        total = len(result)
+        pages = math.ceil(len(result) / size) - 1 if total else 0
 
         pagination_result = {
             "items": list(result[offset_min:offset_max]),
             "page": page,
             "size": size,
-            "pages": math.ceil(len(result) / size) - 1,
-            "total": len(result),
+            "pages": pages,
+            "total": total,
         }
 
         return pagination_result
@@ -60,12 +62,7 @@ class GoodRepository(BaseDatabaseRepository):
 
         await self._session.flush()
 
-    async def get_all(self) -> Sequence[Good]:
-        query_result = await self._session.execute(select(Good))
-
-        return query_result.scalars().all()
-
-    def get_in_stock(
+    def filter_by_in_stock(
         self, query: Select[tuple[Good]], in_stock: bool
     ) -> Select[tuple[Good]]:
         if in_stock:
@@ -77,13 +74,29 @@ class GoodRepository(BaseDatabaseRepository):
 
         return filtered_query
 
+    def filter_by_name(
+        self, query: Select[tuple[Good]], name: str
+    ) -> Select[tuple[Good]]:
+        search_query = func.plainto_tsquery("multi_lang", name)
+        filtered_query = query.filter(
+            func.to_tsvector("multi_lang", Good.name).op("@@")(search_query)
+        )
+
+        return filtered_query
+
     async def get_by_filters(
-        self, page: int, size: int, in_stock: bool | None = None, filters: Any = None
+        self,
+        page: int,
+        size: int,
+        in_stock: bool | None = None,
+        name: str | None = None,
     ) -> dict[str, Any]:
         query = select(Good)
 
         if in_stock is not None:
-            query = self.get_in_stock(query=query, in_stock=in_stock)
+            query = self.filter_by_in_stock(query=query, in_stock=in_stock)
+        if name is not None:
+            query = self.filter_by_name(query=query, name=name)
 
         query_result = await self._session.execute(query)
         result = query_result.scalars().all()

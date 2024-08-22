@@ -2,8 +2,8 @@
 # from pydantic import field_validator
 #
 # from db.models import Good
-
-
+#
+#
 # class GoodFilter(Filter):
 #     # price__gte: float | None = None
 #     # price__lte: float | None = None

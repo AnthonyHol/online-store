@@ -15,8 +15,11 @@ async def get_goods_by_filter(
     page: int = Query(ge=0, default=0),
     size: int = Query(ge=1, le=100, default=20),
     in_stock: bool | None = Query(default=None),
+    name: str | None = Query(default=None),
 ) -> GoodPageSchema:
-    return await good_service.get_by_filters(page=page, size=size, in_stock=in_stock)
+    return await good_service.get_by_filters(
+        page=page, size=size, in_stock=in_stock, name=name
+    )
 
 
 @router.get(

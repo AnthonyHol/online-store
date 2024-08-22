@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -159,10 +157,14 @@ class GoodService:
         return good
 
     async def get_by_filters(
-        self, page: int, size: int, in_stock: bool | None = None, filters: Any = None
+        self,
+        page: int,
+        size: int,
+        in_stock: bool | None = None,
+        name: str | None = None,
     ) -> GoodPageSchema:
         pagination_result = await self._good_repository.get_by_filters(
-            filters=filters, page=page, size=size, in_stock=in_stock
+            page=page, size=size, in_stock=in_stock, name=name
         )
 
         schema_goods = []
