@@ -164,7 +164,7 @@ class GoodService:
         name: str | None = None,
     ) -> GoodPageSchema:
         pagination_result = await self._good_repository.get_by_filters(
-            page=page, size=size, in_stock=in_stock, name=name
+            page=page - 1, size=size, in_stock=in_stock, name=name
         )
 
         schema_goods = []

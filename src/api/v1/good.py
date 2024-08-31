@@ -12,7 +12,7 @@ router = APIRouter(prefix="/goods", tags=["Товары"])
 @router.get("", status_code=status.HTTP_200_OK)
 async def get_goods_by_filter(
     good_service: GoodService = Depends(),
-    page: int = Query(ge=0, default=0),
+    page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=20),
     in_stock: bool | None = Query(default=None),
     name: str | None = Query(default=None),
