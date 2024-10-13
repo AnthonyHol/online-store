@@ -40,3 +40,13 @@ incorrect_in_stock_exception = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="`in_stock` не может быть меньше 0.",
 )
+
+incorrect_contact_me_form_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Должно быть заполнено хотя бы одно из полей: `phone` или `email`.",
+)
+
+contact_me_form_exception = HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail="Не удалось отправить форму обратной связи в 1С.",
+)

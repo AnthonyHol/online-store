@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     API_1C_TOKEN: str
     API_1C_URL: str
+    CONTACT_ME_1C_URL: str = "feedback"
 
     CORS_ALLOW_ORIGIN_LIST: str = "*"
 
@@ -50,6 +51,10 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
             f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{database}"
         )
+
+    @property
+    def contact_me_1c_url(self) -> str:
+        return os.path.join(self.API_1C_URL, self.CONTACT_ME_1C_URL)
 
 
 @functools.lru_cache
