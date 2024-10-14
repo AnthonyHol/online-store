@@ -24,6 +24,7 @@ class AuthService:
                 settings().auth_login_1c_url, json=data.model_dump_json()
             ) as response:
                 response_data = await response.text()
+                print(f"{response_data=}")
 
                 if (
                     "403" in response_data
