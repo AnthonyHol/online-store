@@ -26,8 +26,7 @@ class AuthService:
                 response_data = await response.text()
 
                 if (
-                    "Это стандартная ошибка 403, означающая, что прошедший процедуру проверки подлинности пользователь "
-                    "не имеет права обращаться к запрошенному ресурсу." in response_data
+                    "403" in response_data
                 ):
                     logger.error(
                         f"{invalid_creds_exception.detail} Ошибка: {response.status} \n {response_data}"
