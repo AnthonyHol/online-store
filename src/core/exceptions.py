@@ -50,3 +50,24 @@ contact_me_form_exception = HTTPException(
     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     detail="Не удалось отправить форму обратной связи в 1С.",
 )
+
+invalid_creds_exception = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Неверный логин или пароль.",
+)
+
+outlets_json_decode_exception = HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail="Ошибка декодирования полученного списка торговых точек из 1С.",
+)
+
+
+outlets_validate_exception = HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail="Ошибка валидации полученного списка торговых точек из 1С.",
+)
+
+outlets_1c_error_exception = HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail="Ошибка получения списка торговых точек из 1С.",
+)
