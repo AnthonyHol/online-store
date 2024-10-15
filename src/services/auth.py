@@ -21,7 +21,7 @@ class AuthService:
     async def create_token(self, data: LoginSchema) -> Response:
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                settings().auth_login_1c_url, json=data.model_dump_json()
+                settings().auth_login_1c_url, json=data.model_dump()
             ) as response:
                 response_data = await response.text()
                 print(f"{data.model_dump_json()=}")
@@ -30,9 +30,7 @@ class AuthService:
                 if (
                     "403" in response_data
                 ):
-                    logger.error(
-                        f"{invalid_creds_exception.detail} Ошибка: {response.status} \n {response_data}"
-                    )
+                    logger.error(f"{invalid_creds_exception.detail}")
                     raise invalid_creds_exception
                 elif "[" and "]" in response_data:
                     serializer = URLSafeTimedSerializer(settings().AUTH_SECRET)
