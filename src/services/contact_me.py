@@ -18,12 +18,13 @@ class ContactMeService:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                settings().contact_me_1c_url, json=data
+                settings().contact_me_1c_url, json=data.model_dump()
             ) as response:
-                if response.status != status.HTTP_200_OK:
-                    logger.error(
-                        f"{contact_me_form_exception.detail} Ошибка: {response.status} | {await response.json()}"
-                    )
-                    raise contact_me_form_exception
+                print(await response.text())
+                # if response.status != status.HTTP_200_OK:
+                #     logger.error(
+                #         f"{contact_me_form_exception.detail} Ошибка: {response.status} | {await response.json()}"
+                #     )
+                #     raise contact_me_form_exception
 
         return data
