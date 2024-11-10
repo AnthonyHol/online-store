@@ -2,7 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import insert, delete, select, Select, or_, func
 
-from db.models import Good, GoodStorage, Price
+from db.models import Good, GoodStorage
 from db.models.association import goods_specifications
 from db.repositories.base import BaseDatabaseRepository
 from schemas.good import GoodCreateSchema

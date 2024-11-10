@@ -61,7 +61,6 @@ outlets_json_decode_exception = HTTPException(
     detail="Ошибка декодирования полученного списка торговых точек из 1С.",
 )
 
-
 outlets_validate_exception = HTTPException(
     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     detail="Ошибка валидации полученного списка торговых точек из 1С.",

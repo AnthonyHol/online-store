@@ -22,10 +22,10 @@ class AuthService:
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 settings().auth_login_1c_url, json=data.model_dump()
-            ) as response:
-                response_data = await response.text()
-                print(f"{data.model_dump_json()=}")
-                print(f"{response_data=}")
+            ) as client_response:
+                response_data = await client_response.text()
+                logger.info(f"{data.model_dump_json()=}")
+                logger.info(f"{response_data=}")
 
                 if "403" in response_data:
                     logger.error(f"{invalid_creds_exception.detail}")
@@ -43,9 +43,11 @@ class AuthService:
                         raise outlets_validate_exception
 
                     result = SuccessLoginSchema(login=data.login, outlets=outlets)
-                    response = JSONResponse(content=result.dict())
-                    response.set_cookie(key="token", value=token, httponly=True)
+                    json_response = JSONResponse(content=result.dict())
+                    json_response.set_cookie(
+                        key="token", value=token, httponly=True, secure=True
+                    )
 
-                    return response
+                    return json_response
                 else:
                     raise outlets_1c_error_exception
