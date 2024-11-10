@@ -1,13 +1,10 @@
 import aiohttp
-from loguru import logger
 
 from core.config import settings
 from core.exceptions import (
     incorrect_contact_me_form_exception,
-    contact_me_form_exception,
 )
 from schemas.contact_me import ContactMeCreateSchema
-from fastapi import status
 
 
 class ContactMeService:

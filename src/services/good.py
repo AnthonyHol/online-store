@@ -20,13 +20,16 @@ from schemas.good import (
     GoodPropertyGetSchema,
 )
 from schemas.good_storage import GoodStorageGetSchema
+from schemas.price import PriceGetSchema
+from schemas.specification import SpecificationSchema
+from services.base import BaseService
 from services.good_group import GoodGroupService
 from services.specification import SpecificationService
 from services.utils import base64_to_bytes_image, resize_image
 from storages.s3 import S3Storage
 
 
-class GoodService:
+class GoodService(BaseService):
     def __init__(
         self,
         session: AsyncSession = Depends(get_session),
@@ -51,7 +54,7 @@ class GoodService:
         return good
 
     async def get_by_guid_with_properties(
-        self, guid: str
+        self, guid: str, price_type_guid: str
     ) -> GoodWithPropertiesGetSchema:
         good = await self._good_repository.get_by_guid(guid=guid)
 
@@ -83,6 +86,20 @@ class GoodService:
                 )
             )
 
+        prices = [
+            PriceGetSchema(
+                good_guid=price.good_guid,
+                specification=SpecificationSchema(
+                    guid=price.specification_guid,
+                    name=price.specification.name,
+                ),
+                price_type=price.price_type,
+                value=price.value,
+            )
+            for price in good.prices
+            if price.price_type_guid == price_type_guid
+        ]
+
         return GoodWithPropertiesGetSchema(
             guid=good.guid,
             name=good.name,
@@ -92,7 +109,7 @@ class GoodService:
             image_key=image_key,
             properties=property_schemas,
             storages=storages,
-            prices=good.prices,
+            prices=prices,
         )
 
     async def delete_specification_association(
@@ -158,13 +175,19 @@ class GoodService:
 
     async def get_by_filters(
         self,
+        price_type_guid: str,
         page: int,
         size: int,
         in_stock: bool | None = None,
         name: str | None = None,
     ) -> GoodPageSchema:
-        pagination_result = await self._good_repository.get_by_filters(
-            page=page - 1, size=size, in_stock=in_stock, name=name
+        pagination_goods = await self._good_repository.get_by_filters(
+            page=page, size=size, in_stock=in_stock, name=name
+        )
+        total = await self._good_repository.get_total_count(model=Good)
+
+        pagination_result = self.get_pagination_result(
+            objects=pagination_goods, page=page, size=size, total=total
         )
 
         schema_goods = []
@@ -173,9 +196,21 @@ class GoodService:
             image_key = await self._s3_storage.generate_presigned_url(
                 key=good.image_key
             )
-
             good_schema = GoodCardGetSchema.model_validate(good)
             good_schema.image_key = image_key
+            good_schema.prices = [
+                PriceGetSchema(
+                    good_guid=price.good_guid,
+                    specification=SpecificationSchema(
+                        guid=price.specification_guid,
+                        name=price.specification.name,
+                    ),
+                    price_type=price.price_type,
+                    value=price.value,
+                )
+                for price in good.prices
+                if price.price_type_guid == price_type_guid
+            ]
 
             if good_schema.image_key is None:
                 good_schema.image_key = await self._s3_storage.generate_presigned_url(

@@ -1,5 +1,6 @@
 from schemas.base import BaseOrmSchema
 from schemas.price_type import PriceTypeSchema
+from schemas.specification import SpecificationSchema
 
 
 class PriceSchema(BaseOrmSchema):
@@ -11,6 +12,6 @@ class PriceSchema(BaseOrmSchema):
 
 class PriceGetSchema(BaseOrmSchema):
     good_guid: str
-    specification_guid: str
+    specification: SpecificationSchema
     price_type: PriceTypeSchema
     value: float

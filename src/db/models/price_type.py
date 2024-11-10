@@ -13,5 +13,4 @@ class PriceType(BaseModel, GUIDMixin):
         "Price",
         back_populates="price_type",
         foreign_keys="Price.price_type_guid",
-        lazy="selectin",
     )

@@ -27,9 +27,7 @@ class AuthService:
                 print(f"{data.model_dump_json()=}")
                 print(f"{response_data=}")
 
-                if (
-                    "403" in response_data
-                ):
+                if "403" in response_data:
                     logger.error(f"{invalid_creds_exception.detail}")
                     raise invalid_creds_exception
                 elif "[" and "]" in response_data:
