@@ -6,6 +6,6 @@ while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
 done
 echo "Connected to the db"
 
-alembic upgrade head
+#alembic upgrade head
 
 exec "$@"
