@@ -6,6 +6,7 @@ from itsdangerous import URLSafeTimedSerializer
 from loguru import logger
 from pydantic import ValidationError
 from starlette.responses import JSONResponse, Response
+from fastapi import Depends
 
 from core.config import settings
 from core.exceptions import (
@@ -14,10 +15,18 @@ from core.exceptions import (
     outlets_json_decode_exception,
     outlets_1c_error_exception,
 )
-from schemas.auth import LoginSchema, SuccessLoginSchema, OutletSchema
+from db.repositories.auth import OutletRedisRepository
+from schemas.auth import LoginSchema
+from schemas.outlet import OutletSchema
 
 
 class AuthService:
+    def __init__(
+        self,
+        outlet_repository: OutletRedisRepository = Depends(),
+    ):
+        self._outlet_repository = outlet_repository
+
     async def create_token(self, data: LoginSchema) -> Response:
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -42,8 +51,9 @@ class AuthService:
                     except ValidationError:
                         raise outlets_validate_exception
 
-                    result = SuccessLoginSchema(login=data.login, outlets=outlets)
-                    json_response = JSONResponse(content=result.dict())
+                    await self._outlet_repository.set_list(token=token, models=outlets)
+
+                    json_response = JSONResponse(content="Authorization successful")
                     json_response.set_cookie(
                         key="token", value=token, httponly=True, secure=True
                     )

@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "store"
 
+    REDIS_DSN: str = "redis://localhost:6379"
+
     S3_DSN: str = "http://localhost:9000"
     S3_ACCESS_KEY_ID: str = "store-app"
     S3_SECRET_ACCESS_KEY: str = "store-app"

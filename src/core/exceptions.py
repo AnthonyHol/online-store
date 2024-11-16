@@ -52,7 +52,7 @@ contact_me_form_exception = HTTPException(
 )
 
 invalid_creds_exception = HTTPException(
-    status_code=status.HTTP_403_FORBIDDEN,
+    status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Неверный логин или пароль.",
 )
 

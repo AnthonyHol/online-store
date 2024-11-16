@@ -21,7 +21,7 @@ services:
     environment:
       - MINIO_ROOT_USER=store-app
       - MINIO_ROOT_PASSWORD=store-app
-      - MINIO_DEFAULT_BUCKET=store-app
+      - MINIO_DEFAULT_BUCKETS=store-app
     volumes:
       - minio_data:/data
     ports:
@@ -31,6 +31,17 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
+      retries: 3
+
+  redis:
+    image: redis/redis-stack:latest
+    restart: on-failure
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: redis-cli ping
+      interval: 30s
+      timeout: 10s
       retries: 3
 
   api:
@@ -45,6 +56,7 @@ services:
     depends_on:
       - db
       - minio
+      - redis
     command: uvicorn main:app --host 0.0.0.0 --port 8000
 
   nginx:
