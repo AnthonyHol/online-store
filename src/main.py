@@ -3,8 +3,10 @@ from fastapi_pagination import add_pagination
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+
 from api.router import api_router
 from core.config import settings
+from core.middleware import LogMiddleware
 
 app = FastAPI(
     title="Online Store",
@@ -25,3 +27,4 @@ app.add_middleware(
 app.include_router(api_router)
 
 app.add_middleware(SessionMiddleware, secret_key=settings().SESSION_MIDDLEWARE_SECRET)
+app.add_middleware(LogMiddleware)
