@@ -89,10 +89,8 @@ class GoodRepository(BaseDatabaseRepository):
         name: str | None = None,
         price_from: float | None = None,
         price_to: float | None = None,
-    ) -> Sequence[Good]:
-        query = self.get_pagination_query(
-            query=select(Good), offset=(page - 1) * size, limit=size
-        )
+    ) -> tuple[Sequence[Good], int]:
+        query = select(Good)
 
         if in_stock is not None:
             query = self.filter_by_in_stock(query=query, in_stock=in_stock)
@@ -103,5 +101,11 @@ class GoodRepository(BaseDatabaseRepository):
             query=query, price_from=price_from, price_to=price_to
         )
 
+        count = await self._session.scalar(select(func.count()).select_from(query.subquery()))
+
+        query = self.get_pagination_query(
+            query=query, offset=(page - 1) * size, limit=size
+        )
+
         query_result = await self._session.execute(query)
-        return query_result.scalars().all()
+        return query_result.scalars().all(), count
