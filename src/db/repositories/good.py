@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlalchemy import insert, delete, select, Select, or_, func, between
+from sqlalchemy import insert, delete, select, Select, or_, func, between, and_
 
 from db.models import Good, GoodStorage, Price
 from db.models.association import goods_specifications
@@ -21,7 +21,7 @@ class GoodRepository(BaseDatabaseRepository):
         return good
 
     async def create_association_with_specification(
-        self, good_guid: str, specification_guid: str
+            self, good_guid: str, specification_guid: str
     ) -> None:
         query = insert(goods_specifications).values(
             good_guid=good_guid, specification_guid=specification_guid
@@ -29,7 +29,7 @@ class GoodRepository(BaseDatabaseRepository):
         await self._session.execute(query)
 
     async def delete_association_with_specification(
-        self, good_guid: str, specification_guid: str
+            self, good_guid: str, specification_guid: str
     ) -> None:
         query = delete(goods_specifications).where(
             goods_specifications.c.good_guid == good_guid,
@@ -44,7 +44,7 @@ class GoodRepository(BaseDatabaseRepository):
 
     @staticmethod
     def filter_by_in_stock(
-        query: Select[tuple[Good]], in_stock: bool
+            query: Select[tuple[Good]], in_stock: bool
     ) -> Select[tuple[Good]]:
         if in_stock:
             filtered_query = query.join(Good.storages).filter(GoodStorage.in_stock > 0)
@@ -66,7 +66,7 @@ class GoodRepository(BaseDatabaseRepository):
 
     @staticmethod
     def filter_by_price(
-        query: Select[tuple[Good]], price_from: float | None, price_to: float | None
+            query: Select[tuple[Good]], price_from: float | None, price_to: float | None
     ) -> Select[tuple[Good]]:
         filtered_query = query
 
@@ -82,13 +82,13 @@ class GoodRepository(BaseDatabaseRepository):
         return filtered_query
 
     async def get_by_filters(
-        self,
-        page: int,
-        size: int,
-        in_stock: bool | None = None,
-        name: str | None = None,
-        price_from: float | None = None,
-        price_to: float | None = None,
+            self,
+            page: int,
+            size: int,
+            in_stock: bool | None = None,
+            name: str | None = None,
+            price_from: float | None = None,
+            price_to: float | None = None,
     ) -> tuple[Sequence[Good], int]:
         query = select(Good)
 
@@ -111,3 +111,11 @@ class GoodRepository(BaseDatabaseRepository):
 
         query_result = await self._session.execute(query)
         return query_result.scalars().all(), count
+
+    async def check_association_with_specification(self, good_guid: str, specification_guid: str) -> bool:
+        query = select(goods_specifications).where(
+            goods_specifications.c.good_guid == good_guid,
+            goods_specifications.c.specification_guid == specification_guid,
+        )
+
+        return bool(await self._session.execute(query))

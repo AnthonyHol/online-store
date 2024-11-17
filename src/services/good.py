@@ -1,13 +1,17 @@
+from typing import Sequence
+
 from fastapi import Depends
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import PROPERTY_COLUMNS
 from core.exceptions import (
     good_not_found_exception,
     encoded_image_exception,
-    upload_image_exception,
+    upload_image_exception, no_goods_specs_associations_exception,
 )
 from db.models import Good
+from db.models.association import goods_specifications
 from db.repositories.good import GoodRepository
 from db.session import get_session
 from schemas.good import (
@@ -225,3 +229,10 @@ class GoodService(BaseService):
             pages=pagination_result["pages"],
             total=pagination_result["total"],
         )
+
+    async def check_association_with_specification(self, good_guid: str, specification_guid: str) -> None:
+        is_association = await self._good_repository.check_association_with_specification(good_guid=good_guid,
+                                                                          specification_guid=specification_guid)
+
+        if not is_association:
+            raise no_goods_specs_associations_exception

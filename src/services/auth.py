@@ -2,7 +2,7 @@ import json
 from json import JSONDecodeError
 
 import aiohttp
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from loguru import logger
 from pydantic import ValidationError
 from starlette.responses import JSONResponse, Response
@@ -70,3 +70,12 @@ class AuthService:
         json_response.set_cookie(key="token", value=token, httponly=True)
 
         return json_response
+
+    def get_username_by_token(self, token: str):
+        serializer = URLSafeTimedSerializer(settings().AUTH_SECRET)
+
+        try:
+            serializer.loads(token, salt="session", max_age=settings().TOKEN_EXPIRATION_TIME)
+            return True
+        except (BadSignature, SignatureExpired):
+            return False

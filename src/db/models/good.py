@@ -68,7 +68,7 @@ class Good(BaseModel, GUIDMixin):
     )
 
     carts: Mapped[list["Cart"]] = relationship(  # type: ignore # noqa: F821
-        "Cart", secondary=goods_carts, back_populates="goods"
+        "Cart", secondary=goods_carts, back_populates="goods", lazy="selectin",
     )
 
     def __repr__(self):

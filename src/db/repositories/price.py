@@ -1,7 +1,7 @@
 from typing import Sequence
 
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from db.models.price import Price
 from db.repositories.base import BaseDatabaseRepository
@@ -26,3 +26,17 @@ class PriceRepository(BaseDatabaseRepository):
         await self._session.flush()
 
         return good_storage
+
+    async def get_by_good_guid_spec_guid_price_type_guid(self, guid: str,
+                                                         specification_guid: str,
+                                                         price_type_guid: str) -> Price | None:
+        query = select(Price).filter(
+            and_(
+                Price.good_guid == guid,
+                Price.specification_guid == specification_guid,
+                Price.price_type_guid == price_type_guid
+            )
+        )
+        query_result = await self._session.execute(query)
+
+        return query_result.scalar_one_or_none()

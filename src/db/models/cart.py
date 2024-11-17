@@ -11,18 +11,21 @@ class Cart(BaseModel):
     )
 
     goods: Mapped[list["Good"]] = relationship(
-        "Good", secondary=goods_carts, back_populates="carts"
+        "Good", secondary=goods_carts, back_populates="carts", lazy="selectin",
     )
 
     def add_good(
-        self, good_guid: str, specification_guid: str, quantity: int, price: float
+        self, good_guid: str, specification_guid: str, price_type_guid: str, quantity: int,
     ):
         association = goods_carts.insert().values(
-            shopping_cart_guid=self.outlet_guid,
+            outlet_guid=self.outlet_guid,
             good_guid=good_guid,
             specification_guid=specification_guid,
             quantity=quantity,
-            price=price,
+            price_type_guid=price_type_guid,
         )
 
         return association
+
+    def __repr__(self):
+        return f"Cart(outlet_guid={self.outlet_guid})"

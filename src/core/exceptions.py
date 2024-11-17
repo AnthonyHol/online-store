@@ -80,3 +80,8 @@ no_good_exception = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Нельзя добавить товар, которого недостаточно на складе.",
 )
+
+no_goods_specs_associations_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Не существует такой характеристики для товара.",
+)

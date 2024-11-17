@@ -38,6 +38,7 @@ class Settings(BaseSettings):
 
     SESSION_MIDDLEWARE_SECRET: str = "secret"
     AUTH_SECRET: str = "secret_2"
+    TOKEN_EXPIRATION_TIME: int = 3600
 
     @property
     def cors_allow_origins(self) -> list[str]:
