@@ -1,8 +1,8 @@
 from typing import Sequence
 
-from sqlalchemy import insert, delete, select, Select, or_, func
+from sqlalchemy import insert, delete, select, Select, or_, func, between
 
-from db.models import Good, GoodStorage
+from db.models import Good, GoodStorage, Price
 from db.models.association import goods_specifications
 from db.repositories.base import BaseDatabaseRepository
 from schemas.good import GoodCreateSchema
@@ -64,12 +64,31 @@ class GoodRepository(BaseDatabaseRepository):
 
         return filtered_query
 
+    @staticmethod
+    def filter_by_price(
+        query: Select[tuple[Good]], price_from: float | None, price_to: float | None
+    ) -> Select[tuple[Good]]:
+        filtered_query = query
+
+        if price_from and not price_to:
+            filtered_query = query.join(Good.prices).filter(Price.value >= price_from)
+        elif not price_from and price_to:
+            filtered_query = query.join(Good.prices).filter(Price.value <= price_to)
+        elif price_from and price_to:
+            filtered_query = query.join(Good.prices).filter(
+                between(expr=Price.value, lower_bound=price_from, upper_bound=price_to)
+            )
+
+        return filtered_query
+
     async def get_by_filters(
         self,
         page: int,
         size: int,
         in_stock: bool | None = None,
         name: str | None = None,
+        price_from: float | None = None,
+        price_to: float | None = None,
     ) -> Sequence[Good]:
         query = self.get_pagination_query(
             query=select(Good), offset=(page - 1) * size, limit=size
@@ -79,6 +98,10 @@ class GoodRepository(BaseDatabaseRepository):
             query = self.filter_by_in_stock(query=query, in_stock=in_stock)
         if name is not None:
             query = self.filter_by_name(query=query, name=name)
+
+        query = self.filter_by_price(
+            query=query, price_from=price_from, price_to=price_to
+        )
 
         query_result = await self._session.execute(query)
         return query_result.scalars().all()

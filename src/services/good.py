@@ -184,10 +184,9 @@ class GoodService(BaseService):
         pagination_goods = await self._good_repository.get_by_filters(
             page=page, size=size, in_stock=in_stock, name=name
         )
-        total = await self._good_repository.get_total_count(model=Good)
 
         pagination_result = self.get_pagination_result(
-            objects=pagination_goods, page=page, size=size, total=total
+            objects=pagination_goods, page=page, size=size, total=len(pagination_goods)
         )
 
         schema_goods = []
