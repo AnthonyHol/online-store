@@ -1,5 +1,5 @@
 from core.enum import GoodTypesEnum
-from db.models.association import goods_specifications
+from db.models.association import goods_specifications, goods_carts
 from db.models.base import BaseModel
 from sqlalchemy import ForeignKey, String, Enum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -66,3 +66,10 @@ class Good(BaseModel, GUIDMixin):
         foreign_keys="Price.good_guid",
         lazy="selectin",
     )
+
+    carts: Mapped[list["Cart"]] = relationship(  # type: ignore # noqa: F821
+        "Cart", secondary=goods_carts, back_populates="goods"
+    )
+
+    def __repr__(self):
+        return f"Good(guid={self.guid}, name='{self.name}', prices={self.prices})>"

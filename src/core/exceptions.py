@@ -13,7 +13,7 @@ specification_not_found_exception = HTTPException(
 
 good_not_found_exception = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
-    detail="Номенклатура не найдена",
+    detail="Товар не найден",
 )
 
 property_not_found_exception = HTTPException(
@@ -69,4 +69,14 @@ outlets_validate_exception = HTTPException(
 outlets_1c_error_exception = HTTPException(
     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     detail="Ошибка получения списка торговых точек из 1С.",
+)
+
+cart_not_found_exception = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Корзина для данной торговой точки не найдена",
+)
+
+no_good_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Нельзя добавить товар, которого недостаточно на складе.",
 )

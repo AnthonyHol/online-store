@@ -54,21 +54,19 @@ class AuthService:
                     await self._outlet_repository.set_list(token=token, models=outlets)
 
                     json_response = JSONResponse(content="Login successful")
-                    json_response.set_cookie(
-                        key="token", value=token, httponly=True
-                    )
+                    json_response.set_cookie(key="token", value=token, httponly=True)
 
                     return json_response
                 else:
                     raise outlets_1c_error_exception
 
-    async def delete_token(self, token: str) -> Response:
+    async def delete_token(self, token: str | None) -> Response:
+        if not token:
+            raise invalid_creds_exception
+
         await self._outlet_repository.delete(token=token)
 
         json_response = JSONResponse(content="Logout successful")
-        json_response.set_cookie(
-            key="token", value=token, httponly=True
-        )
+        json_response.set_cookie(key="token", value=token, httponly=True)
 
         return json_response
-

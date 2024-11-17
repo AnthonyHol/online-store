@@ -101,7 +101,9 @@ class GoodRepository(BaseDatabaseRepository):
             query=query, price_from=price_from, price_to=price_to
         )
 
-        count = await self._session.scalar(select(func.count()).select_from(query.subquery()))
+        count = await self._session.scalar(
+            select(func.count()).select_from(query.subquery())
+        )
 
         query = self.get_pagination_query(
             query=query, offset=(page - 1) * size, limit=size

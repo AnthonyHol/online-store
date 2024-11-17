@@ -13,8 +13,8 @@ router = APIRouter(prefix="/auth", tags=["Авторизация"])
     response_model=None,
 )
 async def create_auth_session(
-        data: LoginSchema,
-        auth_service: AuthService = Depends(),
+    data: LoginSchema,
+    auth_service: AuthService = Depends(),
 ) -> Response:
     return await auth_service.create_token(data=data)
 
@@ -25,7 +25,7 @@ async def create_auth_session(
     response_model=None,
 )
 async def delete_auth_session(
-        request: Request,
-        auth_service: AuthService = Depends(),
+    request: Request,
+    auth_service: AuthService = Depends(),
 ) -> Response:
     return await auth_service.delete_token(token=request.cookies.get("token"))
